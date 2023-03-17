@@ -1,2 +1,5 @@
 # FDLP-2023-1
-Para alojar el codigo de los trabajos
+## Miembros de equipo
+- Jose Luis Hincapie Bucheli
+- Sebatian Idrobo Avirama
+- Juan Sebastian Getial Getial
