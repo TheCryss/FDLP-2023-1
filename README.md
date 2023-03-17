@@ -1,5 +1,5 @@
 # FDLP-2023-1
-## Miembros de equipo
+## Team members
 - Jose Luis Hincapie Bucheli
 - Sebatian Idrobo Avirama
 - Juan Sebastian Getial Getial
