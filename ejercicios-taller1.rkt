@@ -57,6 +57,39 @@
 (list-set '(5 8 7 6) 2 '(1 2) even?)
 
 
+;; list-index1 :
+;; Propósito: P x L -> Int | #f
+;; Procedimiento que retorna la posicion del primer elemento de la lista L tal
+;; que satisfaga el predicado P. En caso de que ninguún elemento cumpla, retorna #f
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define list-index1 (
+  lambda (P L)
+   [cond
+     [(null? L) #f]
+     [else
+      (if (P (car L)) 0 (+ 1 (list-index1 P (cdr L))))]]))
+
+
+;; list-index2 :
+;; Propósito: P x L -> Any
+;; Procedimiento que retorna el primer elemento de la lista L tal que satisfaga
+;; el predicado P. En caso de que ninguún elemento cumpla, retorna #f
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+(define list-index2 (
+  lambda (P L)
+   [cond
+     [(null? L) #f]
+     [else
+      (if (P (car L)) (car L) (list-index2 P (cdr L)))]]))
+
+
+
+
 ;; swapper :
 ;; Proposito:
 ;; E1 x E2 x L -> L' : Procedimiento que reemplaza cada ocurrencia anterior de E1
