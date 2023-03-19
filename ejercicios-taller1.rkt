@@ -7,6 +7,27 @@
 
 ; Procedimientos:
 
+;; invert :
+;; Proposito: L -> L
+;; Procedimiento que ingresa una lista L y retorna una lista con cada elemento
+;; de L asociado a un nivel más de paréntesis comparado con su estado original.
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define down (
+  lambda (L)
+   [cond
+     [(null? L)
+      empty
+      ]
+     [else
+      (cons (cons (car L) empty) (down (cdr L)))]]))
+
+;; Pruebas
+(down '(1 2 (3) 4 5))
+(down '(hola como (estas (?)) 1))
+
 ;; list-set :
 ;; Proposito:
 ;; L x n x X x P -> L' : Procedimiento que ingresa el elemento X en la
