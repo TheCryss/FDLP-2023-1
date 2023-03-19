@@ -130,6 +130,27 @@
 (swapper 'x 'y '(y y x y x y x x y))
 
 
+;; mapping:
+;; Propósito: F x L1 x L2 -> L
+;; Procedimiento que retorna una lista de pares (a b) tales que F(a) = B en base a la
+;; función F, siendo 'a' elemento de L1 y 'b' elemento de L2
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define mapping
+  (lambda (F L1 L2)
+    [cond
+      [(not (equal? (length L1) (length L2))) (eopl:error '"Lists have different length")]
+      [(null? L1) empty]
+      [(equal? (F (car L1)) (car L2)) (cons (list (car L1) (car L2)) (mapping F (cdr L1) (cdr L2)))]
+      [else (mapping F (cdr L1) (cdr L2))]]))
+
+;; Pruebas
+(mapping (lambda (x) (* x 4)) (list 1 2 3) (list 4 8 12))
+(mapping (lambda (x) (+ x 2)) (list 2 3 4) (list 4 0 6))
+
+
 ;; inversions :
 ;; Proposito:
 ;; L -> n : Procedimiento que determina el numero de inversiones de la lista L. 
