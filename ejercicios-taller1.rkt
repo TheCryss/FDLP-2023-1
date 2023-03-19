@@ -189,3 +189,35 @@
 (inversions '(2 3 8 6 1))
 (inversions '(1 2 3 4))
 (inversions '(3 2 1))
+
+
+;; filter-acum :
+;; Proposito:
+;; a x b x F x acum x filter -> n : Procedimiento que aplica la 
+;; función binaria F a todos los elementos que están en el intervalo 
+;; [a, b] y que a su vez todos estos elementos cumplen con el 
+;; predicado de la función filter, el resultado se va conservando 
+;; en acum y finalmente se retorna el valor final de acum.
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define filter-acum
+    (lambda (a b F acum filter)
+        [cond
+            [(> a b)
+                acum
+            ]
+            [(filter a)
+                (filter-acum (+ a 1) b F (F acum a) filter)
+            ]
+            [else
+                (filter-acum (+ a 1) b F acum filter)
+            ]
+        ]
+    )
+)
+
+;; Pruebas
+(filter-acum 1 10 + 0 odd?)
+(filter-acum 1 10 + 0 even?)
