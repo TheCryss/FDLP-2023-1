@@ -213,7 +213,7 @@
 
 
 ;; filter-acum :
-;; Proposito:
+;; Proposito :
 ;; a x b x F x acum x filter -> n : Procedimiento que aplica la 
 ;; función binaria F a todos los elementos que están en el intervalo 
 ;; [a, b] y que a su vez todos estos elementos cumplen con el 
