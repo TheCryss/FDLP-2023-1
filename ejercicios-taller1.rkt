@@ -128,3 +128,64 @@
 (swapper 'a 'd '(a b c d))
 (swapper 'a 'd '(a d () c d))
 (swapper 'x 'y '(y y x y x y x x y))
+
+
+;; inversions :
+;; Proposito:
+;; L -> n : Procedimiento que determina el numero de inversiones de la lista L. 
+;; De manera formal, sea A = (a1 a2...an) una lista de x numeros diferentes, 
+;; si i < j (posicion) y ai > aj (dato en la posicion) entonces la pareja (i j) 
+;; es una inversion de A
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+    ;; inversions_aux :
+    ;; Proposito:
+    ;; L x acc -> n : Procedimiento que determina el numero de inversiones del 
+    ;; primer elemento con los demas elementos de la lista L. 
+    ;; De manera formal, sea A = (a1 a2...an) una lista de x numeros diferentes, 
+    ;; si j > 1 (posicion) y a1 > aj (dato en la posicion) entonces la pareja (a1 aj) 
+    ;; es una inversion de la lista L con base al elemento a1
+    ;;
+    ;; <lista> := ()
+    ;;         := (<valor-de-scheme> <lista>)
+
+    (define inversions_aux
+        (lambda (L acc)
+            [cond
+                [(or (null? L) (null? (cdr L)))
+                    acc
+                ]
+                [(> (car L) (cadr L))
+                    (inversions_aux (cons (car L) (cddr L)) (+ acc 1))
+                ]
+                [else
+                    (inversions_aux (cons (car L) (cddr L)) acc)
+                ]
+            ]
+        )
+    )
+
+    ;; Pruebas
+    (inversions_aux '(2 3 8 6 1) 0)
+    (inversions_aux '(1 2 3 4) 0)
+    (inversions_aux '(3 2 1) 0)
+
+(define inversions
+    (lambda (L)
+        [cond
+            [(or (null? L) (null? (cdr L)))
+                0
+            ]
+            [
+                (+ (inversions_aux L 0) (inversions (cdr L)))
+            ]
+        ]
+    )
+)
+
+;; Pruebas
+(inversions '(2 3 8 6 1))
+(inversions '(1 2 3 4))
+(inversions '(3 2 1))
