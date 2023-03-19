@@ -67,10 +67,14 @@
 
 (define list-index1 (
   lambda (P L)
-   [cond
-     [(null? L) #f]
-     [else
-      (if (P (car L)) 0 (+ 1 (list-index1 P (cdr L))))]]))
+    (cond
+      [(null? L) #f]
+      [(P (car L)) 0]
+      [else
+        (let ((contador (list-index1 P (cdr L))))
+          (if (number? contador)
+              (+ 1 contador)
+              #f))])))
 
 
 ;; list-index2 :
