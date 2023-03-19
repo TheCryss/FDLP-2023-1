@@ -212,6 +212,22 @@
 (inversions '(3 2 1))
 
 
+;; zip
+;; Propósito: F x L1 x L2 -> L
+;; Procedimiento que retorna una lista tal que la posición n-ésima es resultado
+;; de aplicar la función F sobre los elementos L1 y L2 en las respectivas posiciones.
+(define zip
+  (lambda (F L1 L2)
+    [cond
+      [(not (equal? (length L1) (length L2))) (eopl:error '"Lists have different length")]
+      [(null? L1) empty]
+      [else (cons (F (car L1) (car L2)) (zip F (cdr L1) (cdr L2)))]]))
+
+;; Pruebas
+(zip - '(5 4 0) '(1 4 2)) ;(4 0 -2)
+(zip * '(5 4 0) '(1 4 2)) ;(5 16 0)
+
+
 ;; filter-acum :
 ;; Proposito :
 ;; a x b x F x acum x filter -> n : Procedimiento que aplica la 
