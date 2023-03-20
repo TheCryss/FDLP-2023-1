@@ -454,3 +454,48 @@
 ;; Pruebas
 (prod-scalar-matriz '((1 1) (3 2) (10 5)) '(-2 3))
 (prod-scalar-matriz '((1 1 1) (3 2 1) (10 5 0)) '(1 2 3))
+
+
+;; pascal :
+;; Proposito :
+;; N -> L : Procedimiento que retorna la fila N
+;; del triangulo de Pascal.
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+  ;; pascal_aux :
+  ;; Proposito :
+  ;; N x L -> L' : Procedimiento que retorna la fila N
+  ;; del triangulo de Pascal recibiendo como prametro
+  ;; incial la fila 1.
+  ;;
+  ;; <lista> := ()
+  ;;         := (<valor-de-scheme> <lista>)
+
+  (define pascal_aux
+    (lambda (N L) ; L = '(1) Fila 1 del triangulo de pascal
+      [cond
+        [(eqv? N 1)
+          L
+        ]
+        [else
+          (pascal_aux (- N 1) (zip + (cons 0 L) (append L '(0))))
+        ]
+      ]
+    )
+  )
+
+  ;; Pruebas
+  (pascal_aux 1 '(1))
+  (pascal_aux 5 '(1))
+
+(define pascal
+  (lambda (N)
+    (pascal_aux N '(1))
+  )
+)
+
+;; Pruebas
+(pascal 5)
+(pascal 1)
