@@ -87,6 +87,29 @@
 (list-set '(5 8 7 6) 2 '(1 2) odd?)
 (list-set '(5 8 7 6) 2 '(1 2) even?)
 
+;; filter-in :
+;; Proposito: L -> L
+;; Procedimiento que dada una lista se le aplica un predicado
+;; los elementos que lo cumplan seran devueltos en una lista
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+
+(define filter-in
+  (lambda (P L)
+    (cond
+      [(null? L) empty]
+      [(P (car L)) (cons (car L) (filter-in P (cdr L)))]
+      [else (filter-in P (cdr L))]
+      )
+    )
+  )
+
+;;Pruebas
+(filter-in number? '(a 2 (1 3) b 7))
+(filter-in symbol? '(a (b c) 17 foo))
+(filter-in string? '(a b u "univalle" "racket" "flp" 28 90 (1 2 3)))
+
 
 ;; list-index1 :
 ;; Propósito: P x L -> Int | #f
