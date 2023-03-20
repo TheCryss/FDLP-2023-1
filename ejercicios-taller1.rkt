@@ -371,24 +371,6 @@
 ;; <árbol-binario> := (árbol-vacı́o) empty
 ;;                 := (nodo) número <árbol-binario> <árbol-binario>
 
-  ;; coae_aux :
-  ;; Proposito :
-  ;; L1 x L2 -> L' : Procedimiento que suma dos listas de tamaño 2, sumando
-  ;; sus valores en posiciones iguales. Es decir L' = '((L1_1 + L2_1) (L1_2 + L2_2))
-  ;;
-  ;; <lista> := ()
-  ;;         := (<valor-de-scheme> <lista>)
-
-  (define coae_aux
-    (lambda (L1 L2)
-      (list (+ (car L1) (car L2)) (+ (cadr L1) (cadr L2)))
-    )
-  )
-
-  ;; Pruebas
-  (coae_aux '(1 2) '(2 1))
-  (coae_aux '(0 2) '(0 1))
-
 (define count-odd-and-even
     (lambda (BST)
         [cond
@@ -402,7 +384,7 @@
                 )
             ]
             [else
-              (coae_aux (count-odd-and-even (car BST)) (count-odd-and-even (cdr BST)))
+              (zip + (count-odd-and-even (car BST)) (count-odd-and-even (cdr BST)))
             ]
         ]
     )
