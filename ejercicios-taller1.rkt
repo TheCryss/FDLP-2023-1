@@ -8,7 +8,7 @@
 ; Procedimientos:
 
 ;; invert :
-;; Proposito: L -> L
+;; Proposito: L x P -> L
 ;; Procedimiento que dada una lista de pares aplica un predicado
 ;; si este se cumple retornara dicho par pero con los valores invertidos
 ;; <lista> := ()
@@ -88,7 +88,7 @@
 (list-set '(5 8 7 6) 2 '(1 2) even?)
 
 ;; filter-in :
-;; Proposito: L -> L
+;; Proposito: L x P -> L
 ;; Procedimiento que dada una lista se le aplica un predicado
 ;; los elementos que lo cumplan seran devueltos en una lista
 ;; <lista> := ()
@@ -185,7 +185,7 @@
 
 
 ;; cartesian-product :
-;; Proposito: L -> L
+;; Proposito: L x L -> L
 ;; Realizar el producto cartesiano entre 2 listas
 ;; <lista> := ()
 ;;         := (<valor-de-scheme> <lista>)
@@ -292,6 +292,29 @@
 (inversions '(2 3 8 6 1))
 (inversions '(1 2 3 4))
 (inversions '(3 2 1))
+
+;; up :
+;; Proposito: L -> L
+;; Recibe una Lista y baja un nivel todos los elementos dentro de ella
+;; en caso de estar en el nivel mas bajo lo deja ahi.
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+
+(define up (
+  lambda (L)
+   [cond
+     [(null? L)
+      empty
+      ]
+     [(list?(car L)) (append (append (car L) empty) (up (cdr L)))]
+     [else
+       (list (car L))]]))
+
+;; Pruebas
+(up '((1 2) (3 4)))
+(up '((x (y)) z))
+
 
 
 ;; zip
