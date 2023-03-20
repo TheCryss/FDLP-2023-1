@@ -9,6 +9,37 @@
 
 ;; invert :
 ;; Proposito: L -> L
+;; Procedimiento que dada una lista de pares aplica un predicado
+;; si este se cumple retornara dicho par pero con los valores invertidos
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define invert
+  (lambda (lista predicado)
+    (if (null? lista) empty
+        ( if(and (predicado (caar lista)) (predicado (cadar lista)))
+            (cons (list (cadar lista) (caar lista)) (invert (cdr lista) predicado)) (invert (cdr lista) predicado) )
+        )
+    )
+  )
+
+(define multiplo5?
+  (lambda (n)
+         (cond
+           [(< n 0) #f]
+           [(eqv? n 0) #t]
+           [else (multiplo5? (- n 5))]
+           )
+         )
+  )
+
+;; Pruebas
+(invert '((3 2) (4 2) (1 5) (2 8)) even?)
+(invert '((5 9) (10 90) (82 7) ) multiplo5? )
+(invert '((6 9) (10 90) (82 7) ) odd? )
+
+;; down :
+;; Proposito: L -> L
 ;; Procedimiento que ingresa una lista L y retorna una lista con cada elemento
 ;; de L asociado a un nivel más de paréntesis comparado con su estado original.
 ;;
