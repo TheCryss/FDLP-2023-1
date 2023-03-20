@@ -361,6 +361,61 @@
 (path 1 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
 (path 2 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
 
+
+;; count-odd-and-even :
+;; Proposito :
+;; BST -> (even odd) : Procedimiento que toma un árbol binario y retorna una
+;; lista con dos elementos correspondientes a la cantidad de pares e impares 
+;; en el arbol.
+;;
+;; <árbol-binario> := (árbol-vacı́o) empty
+;;                 := (nodo) número <árbol-binario> <árbol-binario>
+
+  ;; coae_aux :
+  ;; Proposito :
+  ;; L1 x L2 -> L' : Procedimiento que suma dos listas de tamaño 2, sumando
+  ;; sus valores en posiciones iguales. Es decir L' = '((L1_1 + L2_1) (L1_2 + L2_2))
+  ;;
+  ;; <lista> := ()
+  ;;         := (<valor-de-scheme> <lista>)
+
+  (define coae_aux
+    (lambda (L1 L2)
+      (list (+ (car L1) (car L2)) (+ (cadr L1) (cadr L2)))
+    )
+  )
+
+  ;; Pruebas
+  (coae_aux '(1 2) '(2 1))
+  (coae_aux '(0 2) '(0 1))
+
+(define count-odd-and-even
+    (lambda (BST)
+        [cond
+            [(null? BST)
+                '(0 0)
+            ]
+            [(not (pair? BST)) ; Si BST no es una lista
+                (if (even? BST)
+                    '(1 0)
+                    '(0 1)
+                )
+            ]
+            [else
+              (coae_aux (count-odd-and-even (car BST)) (count-odd-and-even (cdr BST)))
+            ]
+        ]
+    )
+)
+
+;; Pruebas
+(count-odd-and-even '(14 (7 () (12 () ()))
+                      (26 (20 (17 () ())
+                              ())
+                          (31 () ()))))
+(count-odd-and-even '(1 (4 () (1 () ())) (5 () ())))
+
+
 ;; prod-listas (Función Auxiliar)
 ;; Propósito: L x L -> L
 ;; Procedimiento que retorna la multiplicación en una lista del primer elemento de L1
