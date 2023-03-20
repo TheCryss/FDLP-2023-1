@@ -258,3 +258,23 @@
 ;; Pruebas
 (filter-acum 1 10 + 0 odd?)
 (filter-acum 1 10 + 0 even?)
+
+;; path
+;; Propósito: Int x <árbol-binario> -> List
+;; Procedimiento que retorna una lista indicando la ruta a tomar en el árbol binario
+;; para encontrar el número 'n'.
+;;
+;; <árbol-binario> := (árbol-vacío) empty
+;;                 := (nodo) número <árbol binario> <árbol binario>
+
+(define path
+  (lambda (n tree)
+    [cond
+      [(equal? (car tree) n) '()]
+      [(< n (car tree)) (cons 'left (path n (cadr tree)))]
+      [(> n (car tree)) (cons 'right (path n (caddr tree)))]]))
+
+;; Pruebas
+(path 5 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
+(path 1 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
+(path 2 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
