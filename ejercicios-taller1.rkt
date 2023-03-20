@@ -184,6 +184,34 @@
 (swapper 'x 'y '(y y x y x y x x y))
 
 
+;; cartesian-product :
+;; Proposito: L -> L
+;; Realizar el producto cartesiano entre 2 listas
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+
+(define cartesian-product
+  (lambda (L1 L2)
+    (cond
+      [(null? L1) '()]
+      [else (append (aux (car L1) L2) (cartesian-product (cdr L1) L2))])
+    )
+  )
+
+(define aux
+  (lambda (x L)
+    (cond 
+      [(null? L) empty]
+      [else (cons (list x (car L)) (aux x (cdr L)))])
+    )
+  )
+
+;; Pruebas
+(cartesian-product '(a b c) '(x y))
+(cartesian-product '(p q r) '(5 6 7))
+
+
 ;; mapping:
 ;; Propósito: F x L1 x L2 -> L
 ;; Procedimiento que retorna una lista de pares (a b) tales que F(a) = B en base a la
