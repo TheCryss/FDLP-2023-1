@@ -278,3 +278,42 @@
 (path 5 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
 (path 1 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
 (path 2 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
+
+;; prod-listas (Función Auxiliar)
+;; Propósito: L x L -> L
+;; Procedimiento que retorna la multiplicación en una lista del primer elemento de L1
+;; con el primer elemento de L2 y así sucesivamente
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define prod-listas
+  (lambda (L1 L2)
+    [cond
+      [(not (equal? (length L1) (length L2))) (eopl:error '"Lists have different length")]
+      [(null? L1) empty]
+      [else (cons (* (car L1) (car L2)) (prod-listas (cdr L1) (cdr L2)))]]))
+
+;; Pruebas
+(prod-listas '(3 5 7) '(1 2 1))
+(prod-listas '(1 2 3 4) '(4 3 2 1))
+
+;; prod-scalar-matriz
+;; Propósito: L x L -> L:
+;; Procedimiento que retorna el resultado de realizar un producto escalar entre la
+;; matriz 'mat' y el vector 'vec'.
+;; Funciones auxiliares: prod-listas
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define prod-scalar-matriz
+  (lambda (mat vec)
+    [cond
+      [(null? mat) empty]
+      [else (cons (prod-listas (car mat) vec) (prod-scalar-matriz (cdr mat) vec))]
+      ]))
+
+;; Pruebas
+(prod-scalar-matriz '((1 1) (3 2) (10 5)) '(-2 3))
+(prod-scalar-matriz '((1 1 1) (3 2 1) (10 5 0)) '(1 2 3))
