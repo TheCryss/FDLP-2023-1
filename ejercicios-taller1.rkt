@@ -364,6 +364,29 @@
 (filter-acum 1 10 + 0 odd?)
 (filter-acum 1 10 + 0 even?)
 
+
+;; operate
+;; Propósito: L x L -> L
+;; Procedimiento que aplica una serie de funciones binarias a una lista
+;; de valores dados.
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define operate
+  (lambda (Irators Irands)
+    (cond
+      [(null? Irators) car Irands]
+      [else ( operate (cdr Irators) (cons ( (car Irators) (car Irands) (cadr Irands)) (cddr Irands))  )
+       ]
+     )
+   )
+  )
+
+;; Pruebas
+ (operate (list + * + - *) '(1 2 8 4 11 6))
+ (operate (list *) '(4 5))
+
+
 ;; path
 ;; Propósito: Int x <árbol-binario> -> List
 ;; Procedimiento que retorna una lista indicando la ruta a tomar en el árbol binario
