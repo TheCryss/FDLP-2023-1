@@ -111,43 +111,29 @@
 (filter-in string? '(a b u "univalle" "racket" "flp" 28 90 (1 2 3)))
 
 
-;; list-index1 :
+;; list-index :
 ;; Propósito: P x L -> Int | #f
 ;; Procedimiento que retorna la posicion del primer elemento de la lista L tal
 ;; que satisfaga el predicado P. En caso de que ninguún elemento cumpla, retorna #f
 ;;
 ;; <lista> := ()
 ;;         := (<valor-de-scheme> <lista>)
-
-(define list-index1 (
+(define list-index (
   lambda (P L)
     (cond
       [(null? L) #f]
       [(P (car L)) 0]
       [else
-        (let ((contador (list-index1 P (cdr L))))
+        (let ((contador (list-index P (cdr L))))
           (if (number? contador)
               (+ 1 contador)
               #f))])))
 
-
-;; list-index2 :
-;; Propósito: P x L -> Any
-;; Procedimiento que retorna el primer elemento de la lista L tal que satisfaga
-;; el predicado P. En caso de que ninguún elemento cumpla, retorna #f
-;;
-;; <lista> := ()
-;;         := (<valor-de-scheme> <lista>)
-(define list-index2 (
-  lambda (P L)
-   [cond
-     [(null? L) #f]
-     [else
-      (if (P (car L)) (car L) (list-index2 P (cdr L)))]]))
-
-
-
-
+;;Pruebas
+(list-index number? '(b (1 3) c 3 d))
+(list-index list? '(b (1 3) c 3 d))
+              
+              
 ;; swapper :
 ;; Proposito:
 ;; E1 x E2 x L -> L' : Procedimiento que reemplaza cada ocurrencia anterior de E1
