@@ -7,6 +7,7 @@
 
 ; Procedimientos:
 
+;; Ejercicio 01
 ;; invert :
 ;; Proposito: L x P -> L
 ;; Procedimiento que dada una lista de pares aplica un predicado
@@ -38,6 +39,8 @@
 (invert '((5 9) (10 90) (82 7) ) multiplo5? )
 (invert '((6 9) (10 90) (82 7) ) odd? )
 
+
+;; Ejercicio 02
 ;; down :
 ;; Proposito: L -> L
 ;; Procedimiento que ingresa una lista L y retorna una lista con cada elemento
@@ -59,6 +62,8 @@
 (down '(1 2 (3) 4 5))
 (down '(hola como (estas (?)) 1))
 
+
+;; Ejercicio 03
 ;; list-set :
 ;; Proposito:
 ;; L x n x X x P -> L' : Procedimiento que ingresa el elemento X en la
@@ -87,6 +92,8 @@
 (list-set '(5 8 7 6) 2 '(1 2) odd?)
 (list-set '(5 8 7 6) 2 '(1 2) even?)
 
+
+;; Ejercicio 04
 ;; filter-in :
 ;; Proposito: L x P -> L
 ;; Procedimiento que dada una lista se le aplica un predicado
@@ -111,6 +118,7 @@
 (filter-in string? '(a b u "univalle" "racket" "flp" 28 90 (1 2 3)))
 
 
+;; Ejercicio 05
 ;; list-index :
 ;; Propósito: P x L -> Int | #f
 ;; Procedimiento que retorna la posicion del primer elemento de la lista L tal
@@ -133,7 +141,8 @@
 (list-index number? '(b (1 3) c 3 d))
 (list-index list? '(b (1 3) c 3 d))
               
-              
+
+;; Ejercicio 06 
 ;; swapper :
 ;; Proposito:
 ;; E1 x E2 x L -> L' : Procedimiento que reemplaza cada ocurrencia anterior de E1
@@ -170,6 +179,7 @@
 (swapper 'x 'y '(y y x y x y x x y))
 
 
+;; Ejercicio 07
 ;; cartesian-product :
 ;; Proposito: L x L -> L
 ;; Realizar el producto cartesiano entre 2 listas
@@ -198,6 +208,7 @@
 (cartesian-product '(p q r) '(5 6 7))
 
 
+;; Ejercicio 08
 ;; mapping:
 ;; Propósito: F x L1 x L2 -> L
 ;; Procedimiento que retorna una lista de pares (a b) tales que F(a) = B en base a la
@@ -219,6 +230,7 @@
 (mapping (lambda (x) (+ x 2)) (list 2 3 4) (list 4 0 6))
 
 
+;; Ejercicio 09
 ;; inversions :
 ;; Proposito:
 ;; L -> n : Procedimiento que determina el numero de inversiones de la lista L. 
@@ -279,6 +291,8 @@
 (inversions '(1 2 3 4))
 (inversions '(3 2 1))
 
+
+;; Ejercicio 10
 ;; up :
 ;; Proposito: L -> L
 ;; Recibe una Lista y baja un nivel todos los elementos dentro de ella
@@ -302,7 +316,7 @@
 (up '((x (y)) z))
 
 
-
+;; Ejercicio 11
 ;; zip
 ;; Propósito: F x L1 x L2 -> L
 ;; Procedimiento que retorna una lista tal que la posición n-ésima es resultado
@@ -319,6 +333,7 @@
 (zip * '(5 4 0) '(1 4 2)) ;(5 16 0)
 
 
+;; Ejercicio 12
 ;; filter-acum :
 ;; Proposito :
 ;; a x b x F x acum x filter -> n : Procedimiento que aplica la 
@@ -351,6 +366,7 @@
 (filter-acum 1 10 + 0 even?)
 
 
+;; Ejercicio 13
 ;; operate
 ;; Propósito: L x L -> L
 ;; Procedimiento que aplica una serie de funciones binarias a una lista
@@ -373,6 +389,7 @@
  (operate (list *) '(4 5))
 
 
+;; Ejercicio 14
 ;; path
 ;; Propósito: Int x <árbol-binario> -> List
 ;; Procedimiento que retorna una lista indicando la ruta a tomar en el árbol binario
@@ -394,6 +411,7 @@
 (path 2 '(2 (1 (0 () ()) ()) (4 () (6 (5 () ()) (8 () ())))))
 
 
+;; Ejercicio 15
 ;; count-odd-and-even :
 ;; Proposito :
 ;; BST -> (even odd) : Procedimiento que toma un árbol binario y retorna una
@@ -430,6 +448,7 @@
 (count-odd-and-even '(1 (4 () (1 () ())) (5 () ())))
 
 
+;; Ejercicio 17
 ;; prod-listas (Función Auxiliar)
 ;; Propósito: L x L -> L
 ;; Procedimiento que retorna la multiplicación en una lista del primer elemento de L1
@@ -470,6 +489,7 @@
 (prod-scalar-matriz '((1 1 1) (3 2 1) (10 5 0)) '(1 2 3))
 
 
+;; Ejercicio 18
 ;; pascal :
 ;; Proposito :
 ;; N -> L : Procedimiento que retorna la fila N
