@@ -195,6 +195,13 @@
     )
   )
 
+
+;; aux :
+;; Proposito: Int x L -> L
+;; Realizar el producto cartesiano entre una lista y un entero
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
 (define aux
   (lambda (x L)
     (cond 
@@ -295,8 +302,8 @@
 ;; Ejercicio 10
 ;; up :
 ;; Proposito: L -> L
-;; Recibe una Lista y baja un nivel todos los elementos dentro de ella
-;; en caso de estar en el nivel mas bajo lo deja ahi.
+;; Recibe una Lista y sube un nivel todos los elementos dentro de ella
+;; en caso de estar en el nivel mas alto lo deja ahi.
 ;; <lista> := ()
 ;;         := (<valor-de-scheme> <lista>)
 
@@ -446,6 +453,61 @@
                               ())
                           (31 () ()))))
 (count-odd-and-even '(1 (4 () (1 () ())) (5 () ())))
+
+
+;; Ejercicio 16
+;; simpson-rule
+;; Propósito: f x a x b x n -> z
+;; Procedimiento que cálcula la integral de una función f entre los valores
+;; a y b mediante la regla de Simpson.
+;;
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
+
+(define simpson-rule
+  (lambda (f a b n)
+    (letrec
+      (
+        (h ( / (- b a) n))
+        (y0 (f a))
+        (yn (f (+ a (* n h))))
+        (aux
+          (lambda (f h n)
+            [cond
+              [(eqv? n 0)
+                0
+              ]
+              [(odd? n)
+                (+ 
+                  (* 4 (f (+ a (* n h))))
+                  (aux f h (- n 1))
+                )
+              ]
+              [else
+                (+ 
+                  (* 2 (f (+ a (* n h))))
+                  (aux f h (- n 1))
+                )
+              ]
+            ]
+          )
+        )
+      )
+      (* 
+        (/ h 3 )
+        (+
+          y0
+          yn
+          (aux f h (- n 1))
+        )
+      )      
+    )
+  )
+)
+
+;; Pruebas
+(simpson-rule (lambda (x) (* x (* x x))) 1 5 8)
+(simpson-rule (lambda (x) x) 1 5 12)
 
 
 ;; Ejercicio 17
