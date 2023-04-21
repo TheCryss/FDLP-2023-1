@@ -38,10 +38,10 @@
     )
 )
 
-    ;; Ejemplos
-    (or-list '(1 2 3))
-    (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))
-    (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3)))))
+;; Ejemplos
+(or-list '(1 2 3))
+(and-list (list (or-list '(1 2 3)) (or-list '(1 3))))
+(fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3)))))
 
 
 ; ESTRACTORES
@@ -64,10 +64,10 @@
     )
 )
 
-    ; Ejemplos
-    (fnc-list->var (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
-    (fnc-list->clausulas (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
-    (or-list->varlist (or-list '(1 2 3)))
+; Ejemplos
+(fnc-list->var (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
+(fnc-list->clausulas (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
+(or-list->varlist (or-list '(1 2 3)))
 
 ; INSTANCIAS
 (define SAT-list1 (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(-1 -2)) (or-list '(-3))))))
@@ -91,16 +91,17 @@
 
 (define-datatype sat sat?
     (fnc-exp
+        (num number?)
         (exp and?)
     )
 )
 
-    ; Ejemplos
-    (or-vars '(1 2 3))
-    (and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3))))
-    (fnc-exp (and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3)))))
+; Ejemplos
+(or-vars '(1 2 3))
+(and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3))))
+(fnc-exp 3 (and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3)))))
 
 ; INSTANCIAS
-(define SAT1 (fnc-exp (and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3))))))
-(define SAT2 (fnc-exp (and-clauses (list (or-vars '(2)) (or-vars '(-2 3)) (or-vars '(-3))))))
-(define SAT3 (fnc-exp (and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3)) (or-vars '(1 -3))))))
+(define SAT1 (fnc-exp 3 (and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3))))))
+(define SAT2 (fnc-exp 2 (and-clauses (list (or-vars '(1)) (or-vars '(-1 2)) (or-vars '(-2))))))
+(define SAT3 (fnc-exp 3 (and-clauses (list (or-vars '(1 2 3)) (or-vars '(-2 3)) (or-vars '(1 -3))))))
