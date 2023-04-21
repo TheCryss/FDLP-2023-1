@@ -1,0 +1,1 @@
+("8.8" ta6le ("89cf3819e382cd9e383f28ec611b6b96385c1fab" . "6d73a26012b4a541aa813bce3ce59853a6cb09da") (collects #"drracket" #"private" #"drracket-errortrace-key.rkt") (collects #"eopl" #"lang" #"reader.rkt") (collects #"eopl" #"main.rkt"))

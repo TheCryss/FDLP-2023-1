@@ -1,5 +1,4 @@
-#lang racket
-(require "ejercicio1.rkt")
+#lang eopl
 
 ; Estudiantes:
 ; Jose Luis Hincapie Bucheli - 2125340
