@@ -25,18 +25,33 @@
 
 ; CONSTRUCTORES
 
+;; or-list :
+;; Proposito: L -> L'
+;; Procedimiento que dada una lista de variables(numeros), genera la sintaxis abstracta
+;; de un or basado en listas
+;; <or> ::= OR (<var> {<var>}*)
 (define or-list
     (lambda (vars-list)
         (list 'OR vars-list)
     )
 )
 
+;; and-list :
+;; Proposito: L -> L'
+;; Procedimiento que dada una lista de or, genera la sintaxis abstracta
+;; de un and basado en listas
+;; <and> ::= AND (<or> {<or>}*) 
 (define and-list
     (lambda (ors-list)
         (list 'AND ors-list)
     )
 )
 
+;; fnc-list :
+;; Proposito: n L -> L'
+;; Procedimiento que dado un n numero de variables y y un and, devuelve
+;; la sintaxis abstracta de un fnc bassado en listas
+;; <fnc> ::= FNC num-vars (<and>)
 (define fnc-list
     (lambda (num-vars and-list)
         (list 'FNC num-vars and-list)
@@ -51,18 +66,33 @@
 
 ; ESTRACTORES
 
+;; fnc-list->var :
+;; Proposito: fnc -> n
+;; Procedimiento que dado un fnc en sintaxis abstracta basada en listas,
+;; devuelve el numero de variables de dicho fnc
+;; <fnc> ::= FNC num-vars (<and>)
 (define fnc-list->var
     (lambda (fnc)
         (cadr fnc)
     )
 )
 
+;; fnc-list->var :
+;; Proposito: fnc -> 'clausulas
+;; Procedimiento que dado un fnc en sintaxis abstracta basada en listas,
+;; devuelve las clausulas, es decir el and en sintaxis abstracta, de dicho fnc
+;; <fnc> ::= FNC num-vars (<and>)
 (define fnc-list->clausulas
     (lambda (fnc)
         (cadr (caddr fnc))
     )
 )
 
+;; or-list :
+;; Proposito: or -> L'
+;; Procedimiento que dado un or en sintaxis abstracta basado en listas,
+;; devuelve la lista de variables de dicho or
+;; <or> ::= OR (<var> {<var>}*)
 (define or-list->varlist
     (lambda (or)
         (cadr or)
@@ -82,18 +112,21 @@
 
 ;; Gramatica con DataTypes
 
+;; <or> ::= OR (<var> {<var>}*)
 (define-datatype or or?
     (or-vars
         (vars (list-of number?))
     )
 )
 
+;; <and> ::= AND (<or> {<or>}*) 
 (define-datatype and and?
     (and-clauses
         (clauses (list-of or?))
     )
 )
 
+;; <fnc> ::= FNC num-vars (<and>)
 (define-datatype sat sat?
     (fnc-exp
         (num number?)
