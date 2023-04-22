@@ -35,17 +35,36 @@
 ;; Procedimiento que dada una lista con la representación
 ;; concreta de una instancia SAT (fnc), construye el árbol de sintáxis 
 ;; abstracta basado en listas.
+
 (define PARSEBNF
-    (lambda (fnc)
-        (let
-            (
-                [fnc-l (caddr fnc)]
-                [num-vars (cadr fnc)]
-            )
-            (fnc-list num-vars (parser-aux fnc-l))
-        )
-    )
-)
+  (lambda (fnc)
+    [cond
+      [(null? fnc)
+       fnc
+       ]
+      [(eqv? (car fnc) 'fnc)
+       (fnc-list (cadr fnc) (PARSEBNF (caddr fnc)))
+       ]
+      [(eqv? (car fnc) 'and)
+       (and-list (PARSEBNF (cadr fnc)))
+       ]
+      [(eqv? (caar fnc) 'or)
+       (cons (or-list (cadar fnc)) (PARSEBNF (cdr fnc)))
+       ]
+      ]))
+
+
+;(define PARSEBNF
+;    (lambda (fnc)
+;        (let
+;            (
+;                [fnc-l (caddr fnc)]
+;                [num-vars (cadr fnc)]
+;            )
+;            (fnc-list num-vars (parser-aux fnc-l))
+;        )
+;    )
+;)
 
 ;; Ejemplos
 (define entrada1 (list 'fnc 2 (list 'and (list (list 'or (list 1 2)) (list 'or (list -1))))))
@@ -53,8 +72,18 @@
                                             (list 'or (list 1 2)) 
                                             (list 'or (list -1)) 
                                             (list 'or (list 1 2 -3))))))
+(define entrada3 (list 'and (list
+                             (list 'or (list 1 2))
+                             (list 'or (list -1 3)))))
+(define entrada4 (list
+                  (list 'or (list 1 2 -3 4))
+                  (list 'or (list -1 3))
+                  (list 'or (list 1 -2 4))))
+
 (PARSEBNF entrada1)
 (PARSEBNF entrada2)
+(PARSEBNF entrada3)
+(PARSEBNF entrada4)
 
 
 ;Funcion unparse
