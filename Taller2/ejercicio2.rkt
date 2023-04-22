@@ -46,9 +46,23 @@
 (PARSEBNF entrada1)
 (PARSEBNF entrada2)
 
-;Función Unparse
-;(define UNPARSEBNF
-;  (lambda (tree)
-;    (cond
-;      [])
-;    ))
+;Funcion unparse
+(define UNPARSEBNF
+    (lambda (tree)
+        [cond
+            [(null? tree) 
+                tree
+            ]
+            [(eqv? (car tree) 'FNC)
+                (list 'FNC (fnc-list->var tree) (list 'AND (UNPARSEBNF (fnc-list->clausulas tree))))
+            ]
+            [(eqv? (caar tree) 'OR)
+                (cons (list 'OR (or-list->varlist (car tree))) (UNPARSEBNF (cdr tree)))
+            ]
+        ]        
+    )
+)
+
+;; Ejemplos
+(UNPARSEBNF (PARSEBNF entrada1))
+(UNPARSEBNF (PARSEBNF entrada2))
