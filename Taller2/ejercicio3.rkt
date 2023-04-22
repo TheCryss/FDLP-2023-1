@@ -8,6 +8,10 @@
 
 ;;Creadon los "frascos"
 
+;; cartesian-product :
+;; Proposito: L1 L2 -> List
+;; Procedimiento que dados dos listas 'L1' y 'L2' realiza un producto cartesiano
+;; entre las dos listas.
 (define cartesian-product
   (lambda (L1 L2)
     (cond
@@ -16,6 +20,13 @@
     )
   )
 
+(define list1 (list 1 2))
+(define list2(list 3 4))
+
+;; aux :
+;; Proósito: Number List -> List
+;; Procedimiento que crea una tupla entre 'x' y cada elemento de la lista 'L',
+;; retornando una lista de tuplas.
 (define aux
   (lambda (x L)
     (cond 
