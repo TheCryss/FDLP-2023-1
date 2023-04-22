@@ -9,19 +9,42 @@
 ;;; 2. Funciones Parse y Unparse
 
 ;Función Parse
-(define PARSEBNF
-  (lambda (fnc)
-    (cond
-      [(null? fnc) '()]
-      [(eq? (car fnc) 'FNC) (fnc-exp (cadr fnc) (and-clauses (PARSEBNF (cadr (caddr fnc)))))]
-      [(eq? (car fnc) 'OR) (or-vars (or-list->varlist fnc))]
-      [(eq? (caar fnc) 'OR) (cons (PARSEBNF (car fnc)) (PARSEBNF (cdr fnc)))]
-      )))
+(define parser-aux
+    (lambda (fnc-l)
+        [cond
+            [(null? fnc-l)
+                fnc-l
+            ]
+            [(eqv? (car fnc-l) 'AND)
+                (and-list (parser-aux (cadr fnc-l)))
+            ]
+            [(eqv? (caar fnc-l) 'OR)
+                (cons (or-list (cadar fnc-l)) (parser-aux (cdr fnc-l)))
+            ]
+        ]
+    )
+)
 
-; Ejemplos
-(PARSEBNF (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
-(PARSEBNF (fnc-list 2 (and-list (list (or-list '(-1 2)) (or-list '(2))))))
-(PARSEBNF (fnc-list 4 (and-list (list (or-list '(-1 4)) (or-list '(2 3)) (or-list '(2 -3 -4))))))
+(define PARSEBNF
+    (lambda (fnc)
+        (let
+            (
+                [fnc-l (caddr fnc)]
+                [num-vars (cadr fnc)]
+            )
+            (fnc-list num-vars (parser-aux fnc-l))
+        )
+    )
+)
+
+;; Ejemplos
+(define entrada1 (list 'FNC 2 (list 'AND (list (list 'OR (list 1 2)) (list 'OR (list -1))))))
+(define entrada2 (list 'FNC 3 (list 'AND (list 
+                                            (list 'OR (list 1 2)) 
+                                            (list 'OR (list -1)) 
+                                            (list 'OR (list 1 2 -3))))))
+(PARSEBNF entrada1)
+(PARSEBNF entrada2)
 
 ;Función Unparse
 ;(define UNPARSEBNF
