@@ -1,6 +1,6 @@
 #lang eopl
 (provide or-list and-list fnc-list
-         fnc-list->var fnc-list->clausulas or-list->varlist
+         fnc-list->var fnc-list->and or-list->varlist and-list->clausulas
          SAT-list1 SAT-list2 SAT-list3
          or and sat or-vars and-clauses fnc-exp
          or? and? sat?)
@@ -77,14 +77,14 @@
     )
 )
 
-;; fnc-list->var :
-;; Proposito: fnc -> 'clausulas
+;; fnc-list->and :
+;; Proposito: fnc -> and
 ;; Procedimiento que dado un fnc en sintaxis abstracta basada en listas,
-;; devuelve las clausulas, es decir el and en sintaxis abstracta, de dicho fnc
+;; devuelve el and en sintaxis abstracta de dicho fnc
 ;; <fnc> ::= FNC num-vars (<and>)
-(define fnc-list->clausulas
+(define fnc-list->and
     (lambda (fnc)
-        (cadr (caddr fnc))
+        (caddr fnc)
     )
 )
 
@@ -99,10 +99,22 @@
     )
 )
 
+;; and-list->clausulas :
+;; Proposito: and -> L'
+;; Procedimiento que dado un an en sintaxis abstracta basado en listas,
+;; devuelve la lista de or en sitaxis abstracta de dicho and
+;; <or> ::= OR (<var> {<var>}*)
+(define and-list->clausulas
+    (lambda (and)
+        (cadr and)
+    )
+)
+
 ; Ejemplos
 (fnc-list->var (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
-(fnc-list->clausulas (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
+(fnc-list->and (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(1 3))))))
 (or-list->varlist (or-list '(1 2 3)))
+(and-list->clausulas (and-list (list (or-list '(1 2 3)) (or-list '(1 3)))))
 
 ; INSTANCIAS
 (define SAT-list1 (fnc-list 3 (and-list (list (or-list '(1 2 3)) (or-list '(-1 -2)) (or-list '(-3))))))

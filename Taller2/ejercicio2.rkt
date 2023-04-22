@@ -26,8 +26,11 @@
       [(eqv? (car fnc) 'and)
        (and-list (PARSEBNF (cadr fnc)))
        ]
+      [(eqv? (car fnc) 'or)
+       (or-list (cadr fnc)) 
+       ]  
       [(eqv? (caar fnc) 'or)
-       (cons (or-list (cadar fnc)) (PARSEBNF (cdr fnc)))
+       (cons (PARSEBNF (car fnc)) (PARSEBNF (cdr fnc)))
        ]
       ]))
 
@@ -41,10 +44,7 @@
 (define entrada3 (list 'and (list
                              (list 'or (list 1 2))
                              (list 'or (list -1 3)))))
-(define entrada4 (list
-                  (list 'or (list 1 2 -3 4))
-                  (list 'or (list -1 3))
-                  (list 'or (list 1 -2 4))))
+(define entrada4 (list 'or (list 1 2 3)))
 
 (PARSEBNF entrada1)
 (PARSEBNF entrada2)
@@ -54,7 +54,7 @@
 
 ;Funcion unparse
 ;; UNPARSEBNF :
-;; Proposito: tree -> fnc
+;; Proposito: tree -> fnc-l
 ;; Procedimiento que dado un árbol de sintáxis abstracta
 ;; de una instancia 'SAT' (fnc), 'and-list' o 'or-list', entregue 
 ;; la representación concreta basada en listas.
@@ -65,13 +65,15 @@
                 tree
             ]
             [(eqv? (car tree) 'FNC)
-               ;(list 'fnc (fnc-list->var tree) (list 'and (UNPARSEBNF (fnc-list->clausulas tree))))
-                (list 'fnc (fnc-list->var tree) (list 'and (UNPARSEBNF (fnc-list->clausulas tree))))
+                (list 'fnc (fnc-list->var tree) (UNPARSEBNF (fnc-list->and tree)))
             ]
             [(eqv? (car tree) 'AND)
-                 (list 'and (UNPARSEBNF (fnc-list->clausulas tree)))]
+                 (list 'and (UNPARSEBNF (and-list->clausulas tree)))]
+            [(eqv? (car tree) 'OR)
+                (list 'or (or-list->varlist tree))
+            ]
             [(eqv? (caar tree) 'OR)
-                (cons (list 'or (or-list->varlist (car tree))) (UNPARSEBNF (cdr tree)))
+                (cons (UNPARSEBNF (car tree)) (UNPARSEBNF (cdr tree)))
             ]
         ]        
     )
