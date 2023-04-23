@@ -39,8 +39,10 @@
 ; para 3 variables
 ;(cartesian-product '(a b c) '(#t #f)
 
-;Combinando los "frascos"
-
+;; mix :
+;; Propóstio: List List -> List
+;; Procedimiento que recibe como 'cabezaLista' los elementos a permutar y 'restoLista'
+;; la cantidad de permutaciones con la que se combinará 'cabezaLista'.
 (define mix
   (lambda (cabezaLista restoLista)
     (cond
@@ -51,6 +53,10 @@
     )
   )
 
+;; generator :
+;; Propósito: List List -> List
+;; Procedimiento que retorna en una lista 'n' veces 'L2', siendo 'n' la cantidad de
+;; elementos en L1. Cada elemento de 'L2' es retornado dentro de una lista.
 (define generator
   (lambda (L1 L2)
     (letrec
@@ -72,11 +78,13 @@
     )
  )
 
+(((#t) (#f)) ((#t) (#f)) ((#t) (#f)) ((#t) (#f)))
 
 
 ;pruebas
 (define t (generator  '(1 2 3) '(#t #f)))
 
+;
 (define element-n
   (lambda (l n)
     [cond
