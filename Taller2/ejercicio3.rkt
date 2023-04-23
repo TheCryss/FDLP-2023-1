@@ -15,13 +15,13 @@
       [else (append (aux (car L1) L2) (cartesian-product (cdr L1) L2))])
     )
   )
-
+ 
 (define aux
   (lambda (x L)
     (cond 
       [(null? L) empty]
-      [else (cons (list x (car L)) (aux x (cdr L)))])
-    )
+      [else (cons ( append x (car L)) (aux x (cdr L)))])
+    ) 
   )
 
 ; para 3 variables
@@ -33,7 +33,7 @@
   (lambda (cabezaLista restoLista)
     (cond
       [(null? restoLista) cabezaLista]
-      [else (mix (append(cartesian-product cabezaLista (car restoLista))) (cdr restoLista) )]
+      [else (mix (cartesian-product cabezaLista (car restoLista)) (cdr restoLista) )]
       )
     
     )
@@ -61,5 +61,6 @@
  )
 
 
+
 ;pruebas
-(define t (generator  '(1 2 3 4 ) '(#t #f)))
+(define t (generator  '(1 2 3 4 5 6) '(#t #f)))
