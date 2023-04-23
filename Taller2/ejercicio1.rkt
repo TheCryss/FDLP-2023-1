@@ -17,7 +17,7 @@
 ; <fnc> ::= FNC num-vars (<and>)
 ; <and> ::= AND (<or> {<or>}*) 
 ; <or> ::= OR (<var> {<var>}*)
-; <var> ::= 1 | -1 | 2 | -2 | ... | number-vars | -number-vars
+; <var> ::= 1 | -1 | 2 | -2 | ... | num-vars | -num-vars
 
 ;; Gramatica con listas
 
