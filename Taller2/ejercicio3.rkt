@@ -78,7 +78,6 @@
     )
  )
 
-(((#t) (#f)) ((#t) (#f)) ((#t) (#f)) ((#t) (#f)))
 
 
 ;pruebas
@@ -103,6 +102,9 @@
     ]
   )
 )
+;; Pruebas
+(element-n '(1 2 4 6) 1)
+(element-n '(3 2 1 6) 3)
 
 ;; eval-clause :
 ;; Proposito: clause-l comb-l -> bool
@@ -124,6 +126,9 @@
     ]
   )
 )
+;; Pruebas
+(eval-clause '(1 2) '(#t #f))
+(eval-clause '(1 2 4) '(#f #f #t #f))
 
 ;; eval-clauses :
 ;; Proposito: clauses-l comb-l -> bool
@@ -146,6 +151,9 @@
     ]
   )
 )
+;;Pruebas
+(eval-clauses (list (or-list '(1 2)) (or-list '(-2))) '(#t #f))
+(eval-clauses (list (or-list '(1 3)) (or-list '(2 -3))) '(#t #f #t))
 
 ;; range :
 ;; Proposito: acum n -> L'
@@ -165,6 +173,9 @@
     ]
   )
 )
+;; Pruebas
+(range 1 5)
+(range 1 10)
 
 ;; eval-fnc :
 ;; Proposito: clauses-l combs-l -> L'
@@ -188,6 +199,15 @@
     ]
   )
 )
+;; Pruebas
+(eval-fnc (list (or-list '(1 2)) (or-list '(2))) (list '(#t #t)
+                                                        '(#t #f)
+                                                        '(#f #t)
+                                                        '(#f #f)))
+(eval-fnc (list (or-list '(-2)) (or-list '(1 2))) (list '(#t #t)
+                                                        '(#t #f)
+                                                        '(#f #t)
+                                                        '(#f #f)))
 
 ;; EVALUARSAT :
 ;; Proposito: fnc -> L'
@@ -208,3 +228,7 @@
     )
   )
 )
+;; Pruebas
+(EVALUARSAT SAT-list1)
+(EVALUARSAT SAT-list2)
+(EVALUARSAT SAT-list3)
