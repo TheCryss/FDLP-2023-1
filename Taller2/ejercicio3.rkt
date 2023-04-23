@@ -1,4 +1,5 @@
 #lang eopl
+(require "ejercicio1.rkt")
 
 ; Estudiantes:
 ; Jose Luis Hincapie Bucheli - 2125340
@@ -19,9 +20,6 @@
       [else (append (aux (car L1) L2) (cartesian-product (cdr L1) L2))])
     )
   )
-<<<<<<< HEAD
- 
-=======
 
 (define list1 (list 1 2))
 (define list2(list 3 4))
@@ -30,7 +28,6 @@
 ;; Proósito: Number List -> List
 ;; Procedimiento que crea una tupla entre 'x' y cada elemento de la lista 'L',
 ;; retornando una lista de tuplas.
->>>>>>> 4d0cb4801a90113d5ac2d361699d29a0072fe539
 (define aux
   (lambda (x L)
     (cond 
@@ -78,4 +75,92 @@
 
 
 ;pruebas
-(define t (generator  '(1 2 3 4 5 6) '(#t #f)))
+(define t (generator  '(1 2 3) '(#t #f)))
+
+(define element-n
+  (lambda (l n)
+    [cond
+      [(eqv? n 1)
+        (car l)
+      ]
+      [else
+        (element-n (cdr l) (- n 1))
+      ]
+    ]
+  )
+)
+
+(define eval-clause
+  (lambda (clause comb)
+    [cond
+      [(null? (cdr clause))
+        (if (positive? (car clause))
+          (element-n comb (car clause)) 
+          (not (element-n comb (abs (car clause))))
+        )
+      ]
+      [else
+        (or (eval-clause (list (car clause)) comb) (eval-clause (cdr clause) comb))
+      ]
+    ]
+  )
+)
+
+(define eval-clauses
+  (lambda (clauses comb)
+    [cond
+      [(null? (cdr clauses))
+        (eval-clause (or-list->varlist (car clauses)) comb)
+      ]
+      [else
+        (and
+          (eval-clause (or-list->varlist (car clauses)) comb) 
+          (eval-clauses (cdr clauses) comb)
+        )
+      ]
+    ]
+  )
+)
+
+(define range
+  (lambda (acum n)
+    [cond
+      [(eqv? n acum)
+        (list n)
+      ]
+      [else
+        (append (list acum) (range (+ acum 1) n))
+      ]
+    ]
+  )
+)
+
+(define eval-fnc
+  (lambda (clauses combinaciones)
+    [cond
+      [(null? combinaciones)
+        combinaciones
+      ]
+      [(eval-clauses clauses (car combinaciones))
+        (car combinaciones)
+      ]
+      [else
+        (eval-fnc clauses (cdr combinaciones))
+      ]
+    ]
+  )
+)
+
+
+(define eval-sat
+  (lambda (fnc)
+    (letrec
+      (
+        (and (fnc-list->and fnc))
+        (comb-aux (generator  (range 1 (fnc-list->var fnc)) '(#t #f)))
+        (combinaciones (mix (car comb-aux) (cdr comb-aux)))
+      )
+      (eval-fnc (and-list->clausulas and) combinaciones)
+    )
+  )
+)

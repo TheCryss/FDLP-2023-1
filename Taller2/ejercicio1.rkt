@@ -1,9 +1,7 @@
 #lang eopl
 (provide or-list and-list fnc-list
          fnc-list->var fnc-list->and or-list->varlist and-list->clausulas
-         SAT-list1 SAT-list2 SAT-list3
-         or and sat or-vars and-clauses fnc-exp
-         or? and? sat?)
+         SAT-list1 SAT-list2 SAT-list3)
 
 ; Estudiantes:
 ; Jose Luis Hincapie Bucheli - 2125340
