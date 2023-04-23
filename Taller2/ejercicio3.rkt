@@ -77,6 +77,13 @@
 ;pruebas
 (define t (generator  '(1 2 3) '(#t #f)))
 
+
+;; element-n :
+;; Proposito: L' -> n
+;; Procedimiento que dada una lista l, obtiene el elmento n de dicha lista.
+;; Teniendo en cuenta que tomaremos que una lista esta indexada desde 1.
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
 (define element-n
   (lambda (l n)
     [cond
@@ -90,6 +97,11 @@
   )
 )
 
+;; eval-clause :
+;; Proposito: clause-l comb-l -> bool
+;; Procedimiento que dado una clausula (lista de numeros + o -) y una combinacion
+;; de valores #t y #f, evalua la clausula.
+;; <or> ::= OR (<var> {<var>}*)
 (define eval-clause
   (lambda (clause comb)
     [cond
@@ -106,6 +118,12 @@
   )
 )
 
+;; eval-clauses :
+;; Proposito: clauses-l comb-l -> bool
+;; Procedimiento que dado una lista de clausulas (listas de numeros + o -) y una 
+;; combinacion de valores #t y #f, evalua las clausulas.
+;; <and> ::= AND (<or> {<or>}*) 
+;; <or> ::= OR (<var> {<var>}*)
 (define eval-clauses
   (lambda (clauses comb)
     [cond
@@ -122,6 +140,12 @@
   )
 )
 
+;; range :
+;; Proposito: acum n -> L'
+;; Procedimiento que dado un acumulador y un numero n, genera una lista de 
+;; numeros desde acumulador hasta n
+;; <lista> := ()
+;;         := (<valor-de-scheme> <lista>)
 (define range
   (lambda (acum n)
     [cond
@@ -135,14 +159,21 @@
   )
 )
 
+;; eval-fnc :
+;; Proposito: clauses-l combs-l -> L'
+;; Procedimiento que dado una lista de clausulas (listas de numeros + o -) y una lista
+;; de combinaciones de valores #t y #f, evalua cada las clausulas con cada
+;; combinacion hasta encontrar una solucion e indicarla o no encontrarla.
+;; <and> ::= AND (<or> {<or>}*) 
+;; <or> ::= OR (<var> {<var>}*)
 (define eval-fnc
   (lambda (clauses combinaciones)
     [cond
       [(null? combinaciones)
-        combinaciones
+        (list 'insatisfactible combinaciones)
       ]
       [(eval-clauses clauses (car combinaciones))
-        (car combinaciones)
+        (list 'satisfactible (car combinaciones))
       ]
       [else
         (eval-fnc clauses (cdr combinaciones))
@@ -151,8 +182,14 @@
   )
 )
 
-
-(define eval-sat
+;; EVALUARSAT :
+;; Proposito: fnc -> L'
+;; Procedimiento que dado una instancia SAT (fnc), evalua si tiene solucion.
+;; <fnc> ::= FNC num-vars (<and>)
+;; <and> ::= AND (<or> {<or>}*) 
+;; <or> ::= OR (<var> {<var>}*)
+;; <var> ::= 1 | -1 | 2 | -2 | ... | num-vars | -num-vars
+(define EVALUARSAT
   (lambda (fnc)
     (letrec
       (
