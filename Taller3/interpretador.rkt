@@ -51,6 +51,8 @@
     (expresion ("declarar" "(" (separated-list identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
     (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "haga" expresion "finProc") procedimiento-exp)
     (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")" "finEval") app-exp)
+    (expresion ("letrec" (arbno identificador "(" (separated-list identificador ",") ")" "=" expresion)  "in" expresion) 
+                letrec-exp)
 
     ; ; Primitivas Binarias
     (primitiva-binaria ("+") primitiva-suma)
@@ -170,6 +172,9 @@
           )
         )
       )
+      (letrec-exp (proc-names idss bodies letrec-body)
+                  (evaluar-expresion letrec-body
+                                   (extend-env-recursively proc-names idss bodies env)))
     )
   )
 )
@@ -229,7 +234,11 @@
   (extended-env-record (syms (list-of symbol?))
                        (vals (list-of scheme-value?))
                        (env environment?))
-  )
+  (recursively-extended-env-record (proc-names (list-of symbol?))
+                                   (idss (list-of (list-of symbol?)))
+                                   (bodies (list-of expresion?))
+                                   (env environment?))
+)
 
 (define scheme-value? (lambda (v) #t))
 
@@ -246,6 +255,13 @@
   (lambda (syms vals env)
     (extended-env-record syms vals env))) 
 
+;extend-env-recursively: <list-of symbols> <list-of <list-of symbols>> <list-of expressions> environment -> environment
+;función que crea un ambiente extendido para procedimientos recursivos
+(define extend-env-recursively
+  (lambda (proc-names idss bodies old-env)
+    (recursively-extended-env-record
+     proc-names idss bodies old-env)))
+
 ;función que busca un símbolo en un ambiente
 (define buscar-variable
   (lambda (env sym)
@@ -256,7 +272,14 @@
                            (let ((pos (list-find-position sym syms)))
                              (if (number? pos)
                                  (list-ref vals pos)
-                                 (buscar-variable env sym)))))))
+                                 (buscar-variable env sym))))
+      (recursively-extended-env-record (proc-names idss bodies old-env)
+                                       (let ((pos (list-find-position sym proc-names)))
+                                         (if (number? pos)
+                                             (cerradura (list-ref idss pos)
+                                                      (list-ref bodies pos)
+                                                      env)
+                                             (buscar-variable old-env sym)))))))
 
 ; funciones auxiliares para aplicar evaluar-expresion a cada elemento de una 
 ; lista de operandos (expresiones)
