@@ -115,7 +115,10 @@
 ; Ambiente inicial
 (define init-env
   (lambda ()
-     (empty-env)))
+    (extend-env
+     '(@a @b @c @d @e)
+     '(1 2 3 "hola" "FLP")
+     (empty-env))))
 
 ;eval-expresion: <expresion> <environment> -> numero
 ; evalua la expresion en el ambiente de entrada
@@ -124,7 +127,7 @@
     (cases expresion exp
       (numero-lit (num) num)
       (texto-lit (txt) txt)
-      (var-exp (id) (apply-env env id))
+      (var-exp (id) (buscar-variable env id))
       (primapp-bin-exp (exp1 prim-binaria exp2)
                        (let (
                              (args1 (eval-rand exp1 env))
@@ -195,16 +198,16 @@
     (extended-env-record syms vals env))) 
 
 ;función que busca un símbolo en un ambiente
-(define apply-env
+(define buscar-variable
   (lambda (env sym)
     (cases environment env
       (empty-env-record ()
-                        (eopl:error 'apply-env "No binding for ~s" sym))
+                        (eopl:error 'buscar-variable "Error, la variable no existe" sym))
       (extended-env-record (syms vals env)
                            (let ((pos (list-find-position sym syms)))
                              (if (number? pos)
                                  (list-ref vals pos)
-                                 (apply-env env sym)))))))
+                                 (buscar-variable env sym)))))))
 
 ;****************************************************************************************
 ;Funciones Auxiliares
