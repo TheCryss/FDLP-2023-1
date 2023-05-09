@@ -170,6 +170,10 @@
       (primitiva-sub1 () (- exp 1))
       )))
 
+;valor-verdad? <expresion> -> Boolean
+(define valor-verdad?
+  (lambda(x)
+    (not (zero? x))))
 
 
 ;*******************************************************************************************
