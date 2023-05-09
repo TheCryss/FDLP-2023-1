@@ -131,7 +131,11 @@
                              (args2 (eval-rand exp2 env))
                              )
                          (apply-primitiva-binaria args1 prim-binaria args2)))
-      (primapp-un-exp (prim-unaria exp) empty)
+      (primapp-un-exp (prim-unaria exp)
+                      (let (
+                            (args (eval-rand exp env))
+                            )
+                        (apply-primitiva-unaria prim-unaria args)))
       )))
 
 ; Funcion auxiliar para aplicar eval-rand a cada elemento dentro de exp1 exp2
@@ -143,7 +147,7 @@
   (lambda (rand env)
     (eval-expresion rand env)))
 
-;apply-primitive: <number> <primitiva> <number> -> numero
+;apply-primitiva-binaria: <expresion> <primitiva> <expresion> -> numero or string
 (define apply-primitiva-binaria
   (lambda (exp1 prim exp2)
     (cases primitiva-binaria prim
@@ -153,6 +157,16 @@
       (primitiva-div () (/ exp1 exp2))
       (primitiva-concat () (string-append exp1 exp2))
       )))
+
+;apply-primitiva-unaria <primitiva> <expresion> -> numero
+(define apply-primitiva-unaria
+  (lambda (prim exp)
+    (cases primitiva-unaria prim
+      (primitiva-longitud () (string-length exp))
+      (primitiva-add1 () (+ exp 1))
+      (primitiva-sub1 () (- exp 1))
+      )))
+
 
 
 ;*******************************************************************************************
