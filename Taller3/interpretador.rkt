@@ -37,7 +37,7 @@
     (comentario ;Comentarios
      ("//" (arbno (not #\newline))) skip)
     (texto
-     (letter (arbno (or letter (or digit whitespace)))) string)
+     (letter (arbno (or letter digit))) string)
     (identificador ;Identificadores
      ("@" (arbno letter)) symbol)
     (numero ;Número entero positivo
