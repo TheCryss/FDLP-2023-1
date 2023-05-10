@@ -17,6 +17,8 @@
 ;;                         primapp-bin-exp (exp1 prim-binaria exp2)
 ;;                     ::= <primitiva-unaria> (<expresion>)
 ;;                         primapp-un-exp (prim-unaria exp)
+;;                     ::= Si <expresion> entonces <expresion> sino <expresion> finSI
+;;                     ..= condicional-exp(test-exp true-exp false-exp)
 ;;
 ;; <primitiva-binaria> ::= + (primitiva-suma)
 ;;                     ::= ~ (primitiva-resta)
@@ -37,7 +39,7 @@
     (comentario ;Comentarios
      ("//" (arbno (not #\newline))) skip)
     (texto
-     (letter (arbno (or letter (or digit whitespace)))) string)
+     (letter (arbno (or letter digit))) string)
     (identificador ;Identificadores
      ("@" (arbno letter)) symbol)
     (numero ;Número entero positivo
@@ -52,25 +54,34 @@
 
 ;Especificación Sintáctica (Gramática)
 (define grammar-simple-interpreter
-  '((programa (expresion) un-programa)
-    
+  '(;Programa
+    (programa (expresion) un-programa)
+
+    ;Expresiones
     (expresion (numero) numero-lit)
     (expresion ("\""texto"\"") texto-lit)
     (expresion (identificador) var-exp)
     (expresion
      ("("expresion primitiva-binaria expresion")") primapp-bin-exp)
-    (expresion
-     (primitiva-unaria "("expresion")") primapp-un-exp)
-
+    (expresion (primitiva-unaria "("expresion")") primapp-un-exp)
+    ;Condicional
+    (expresion ("Si" expresion "entonces" expresion "sino" expresion "finSI") condicional-exp)
+    ;Variables Locales
+    (expresion ("declarar" "("  (separated-list identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
+    ;Procedimientos
+    
+    ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
     (primitiva-binaria ("~") primitiva-resta)
     (primitiva-binaria ("/") primitiva-div)
     (primitiva-binaria ("*") primitiva-multi)
     (primitiva-binaria ("concat") primitiva-concat)
 
+    ;Primitivas-unarias
     (primitiva-unaria ("longitud") primitiva-longitud)
     (primitiva-unaria ("add1") primitiva-add1)
     (primitiva-unaria ("sub1") primitiva-sub1)
+    
     ))
 
 ;Construyendo datos automáticamente
@@ -115,7 +126,10 @@
 ; Ambiente inicial
 (define init-env
   (lambda ()
-     (empty-env)))
+    (extend-env
+     '(@a @b @c @d @e)
+     '(1 2 3 "hola" "FLP")
+     (empty-env))))
 
 ;eval-expresion: <expresion> <environment> -> numero
 ; evalua la expresion en el ambiente de entrada
@@ -124,7 +138,7 @@
     (cases expresion exp
       (numero-lit (num) num)
       (texto-lit (txt) txt)
-      (var-exp (id) (apply-env env id))
+      (var-exp (id) (buscar-variable env id))
       (primapp-bin-exp (exp1 prim-binaria exp2)
                        (let (
                              (args1 (eval-rand exp1 env))
@@ -136,12 +150,21 @@
                             (args (eval-rand exp env))
                             )
                         (apply-primitiva-unaria prim-unaria args)))
+      (condicional-exp (test-exp true-exp false-exp)
+                       (if (valor-verdad? (eval-expresion test-exp env))
+                           (eval-expresion true-exp env)
+                           (eval-expresion false-exp env)))
+      (variableLocal-exp (ids exps cuerpo)
+                          (let ((args (eval-rands exps env )))
+                           (eval-expresion cuerpo (extend-env ids args env))
+                           ))
       )))
 
+
 ; Funcion auxiliar para aplicar eval-rand a cada elemento dentro de exp1 exp2
-;(define eval-rands
-  ;(lambda (rands env)
-    ;(map (lambda (x) (eval-rand x env)) rands)))
+(define eval-rands
+  (lambda (rands env)
+    (map (lambda (x) (eval-rand x env)) rands)))
 
 (define eval-rand
   (lambda (rand env)
@@ -166,6 +189,11 @@
       (primitiva-add1 () (+ exp 1))
       (primitiva-sub1 () (- exp 1))
       )))
+
+;valor-verdad? <expresion> -> Boolean
+(define valor-verdad?
+  (lambda(x)
+    (not (zero? x))))
 
 
 
@@ -195,16 +223,16 @@
     (extended-env-record syms vals env))) 
 
 ;función que busca un símbolo en un ambiente
-(define apply-env
+(define buscar-variable
   (lambda (env sym)
     (cases environment env
       (empty-env-record ()
-                        (eopl:error 'apply-env "No binding for ~s" sym))
+                        (eopl:error 'buscar-variable "Error, la variable no existe" sym))
       (extended-env-record (syms vals env)
                            (let ((pos (list-find-position sym syms)))
                              (if (number? pos)
                                  (list-ref vals pos)
-                                 (apply-env env sym)))))))
+                                 (buscar-variable env sym)))))))
 
 ;****************************************************************************************
 ;Funciones Auxiliares
