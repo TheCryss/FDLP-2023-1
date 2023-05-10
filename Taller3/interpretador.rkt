@@ -70,6 +70,7 @@
     (expresion ("declarar" "("  (separated-list identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
     ;Procedimientos
     (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "haga" expresion "finProc" ) procedimiento-exp)
+    (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")""finEval") app-exp)
     
     ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
@@ -164,6 +165,14 @@
        (procedimiento-exp (ids cuerpo)
         (cerradura ids cuerpo env)
       )
+      (app-exp (rator rands)
+               (let ((proc (eval-expresion rator env))
+                     (args (eval-rands rands env)))
+                 (if (procVal? proc)
+                     (apply-procedure proc args)
+                     (eopl:error 'eval-expresion
+                                 "Attempt to apply non-procedure ~s" proc))))
+      
       )))
 
 
@@ -247,6 +256,13 @@
    (amb environment?)
    )
   )
+
+;apply-procedure: evalua el cuerpo de un procedimientos en el ambiente extendido correspondiente
+(define apply-procedure
+  (lambda (proc args)
+    (cases procVal proc
+      (cerradura (ids body env)
+               (eval-expresion body (extend-env ids args env))))))
 
 ;****************************************************************************************
 ;Funciones Auxiliares
