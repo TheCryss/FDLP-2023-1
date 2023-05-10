@@ -69,6 +69,7 @@
     ;Variables Locales
     (expresion ("declarar" "("  (separated-list identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
     ;Procedimientos
+    (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "haga" expresion "finProc" ) procedimiento-exp)
     
     ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
@@ -83,6 +84,8 @@
     (primitiva-unaria ("sub1") primitiva-sub1)
     
     ))
+
+
 
 ;Construyendo datos automáticamente
 (sllgen:make-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)
@@ -158,6 +161,9 @@
                           (let ((args (eval-rands exps env )))
                            (eval-expresion cuerpo (extend-env ids args env))
                            ))
+       (procedimiento-exp (ids cuerpo)
+        (cerradura ids cuerpo env)
+      )
       )))
 
 
@@ -233,6 +239,14 @@
                              (if (number? pos)
                                  (list-ref vals pos)
                                  (buscar-variable env sym)))))))
+
+(define-datatype procVal procVal?
+  (cerradura
+   (lista-ID (list-of symbol?))
+   (exp expresion?)
+   (amb environment?)
+   )
+  )
 
 ;****************************************************************************************
 ;Funciones Auxiliares
