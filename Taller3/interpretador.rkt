@@ -39,7 +39,7 @@
     (comentario ;Comentarios
      ("//" (arbno (not #\newline))) skip)
     (texto
-     (letter (arbno (or letter digit))) string)
+     (letter (arbno (or letter digit "-"))) string)
     (identificador ;Identificadores
      ("@" (arbno letter)) symbol)
     (numero ;Número entero positivo
@@ -365,7 +365,16 @@
 
 ;e
 
-;procedimiento ( ) haga "jose-y-seb" finProc
+
+;procedimiento () haga "jose-y-seb" finProc
+;declarar(@saludar=procedimiento () haga "jose-y-seb" finProc){evaluar @saludar() finEval}
+;procedimiento (@m) haga ("a"concat@m) finProc
+
+
+;declarar(
+;@integrantes=procedimiento () haga "jose-y-seb" finProc;
+;@saludar = procedimiento (@m) haga ("Hola"concat@m) finProc )
+;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
 
 ;******************************************************************************************
 (interpretador)
