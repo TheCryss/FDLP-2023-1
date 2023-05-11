@@ -39,7 +39,7 @@
     (comentario ;Comentarios
      ("//" (arbno (not #\newline))) skip)
     (texto
-     (letter (arbno (or letter digit))) string)
+     (letter (arbno (or letter digit "-"))) string)
     (identificador ;Identificadores
      ("@" (arbno letter)) symbol)
     (numero ;Número entero positivo
@@ -70,8 +70,10 @@
     (expresion ("declarar" "("  (separated-list identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
     ;Procedimientos
     (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "haga" expresion "finProc" ) procedimiento-exp)
-    (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")""finEval") app-exp)
-    
+    (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")" "finEval") app-exp)
+    ;Recursividad
+     (expresion ("letrec" (arbno identificador "(" (separated-list identificador ",") ")" "=" expresion)  "{" expresion "}") 
+                letrec-exp)
     ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
     (primitiva-binaria ("~") primitiva-resta)
@@ -172,8 +174,12 @@
                      (apply-procedure proc args)
                      (eopl:error 'eval-expresion
                                  "Attempt to apply non-procedure ~s" proc))))
+      (letrec-exp (proc-names idss bodies letrec-body)
+                  (eval-expresion letrec-body
+                                   (extend-env-recursively proc-names idss bodies env)))))
+  )
       
-      )))
+      
 
 
 ; Funcion auxiliar para aplicar eval-rand a cada elemento dentro de exp1 exp2
@@ -220,7 +226,13 @@
   (empty-env-record)
   (extended-env-record (syms (list-of symbol?))
                        (vals (list-of scheme-value?))
-                       (env environment?)))
+                       (env environment?))
+  (recursively-extended-env-record (proc-names (list-of symbol?))
+                                   (idss (list-of (list-of symbol?)))
+                                   (bodies (list-of expresion?))
+                                   (env environment?))
+)
+
 
 (define scheme-value? (lambda (v) #t))
 
@@ -235,19 +247,31 @@
 ;función que crea un ambiente extendido
 (define extend-env
   (lambda (syms vals env)
-    (extended-env-record syms vals env))) 
+    (extended-env-record syms vals env)))
+
+(define extend-env-recursively
+  (lambda (proc-names idss bodies old-env)
+    (recursively-extended-env-record
+     proc-names idss bodies old-env)))
 
 ;función que busca un símbolo en un ambiente
 (define buscar-variable
   (lambda (env sym)
     (cases environment env
       (empty-env-record ()
-                        (eopl:error 'buscar-variable "Error, la variable no existe" sym))
+                        (eopl:error "Error, la variable no existe"))
       (extended-env-record (syms vals env)
                            (let ((pos (list-find-position sym syms)))
                              (if (number? pos)
                                  (list-ref vals pos)
-                                 (buscar-variable env sym)))))))
+                                 (buscar-variable env sym))))
+      (recursively-extended-env-record (proc-names idss bodies old-env)
+                                       (let ((pos (list-find-position sym proc-names)))
+                                         (if (number? pos)
+                                             (cerradura (list-ref idss pos)
+                                                      (list-ref bodies pos)
+                                                      env)
+                                             (buscar-variable old-env sym)))))))
 
 (define-datatype procVal procVal?
   (cerradura
@@ -283,6 +307,101 @@
               (if (number? list-index-r)
                 (+ list-index-r 1)
                 #f))))))
+
+
+;************************************* PARTE A EVALAUAR ***********************************
+ ;a
+
+;declarar (
+;
+;      @radio=2.5;
+;      @pi=3.14159265358979323846;
+;
+;      @areaCirculo= procedimiento (@radio) haga ( 3.14159265358979323846 *(@radio * @radio)) finProc
+;
+;     ) { 
+;
+;         evaluar @areaCirculo (@radio) finEval  
+;
+;       }
+
+;b
+
+;letrec 
+;       @factorial(@numero) = 
+;                  Si @numero entonces (@numero * evaluar @factorial((@numero ~ 1)) finEval) sino 1 finSI
+;        { evaluar @factorial (5) finEval }
+;
+;letrec 
+;       @factorial(@numero) = 
+;                  Si @numero entonces (@numero * evaluar @factorial((@numero ~ 1)) finEval) sino 1 finSI
+;        { evaluar @factorial (10) finEval }
+
+
+;c
+
+;letrec
+;     @sumar(@a , @b) =
+;            Si @a entonces evaluar @sumar(sub1(@a),add1(@b)) finEval sino @b finSI
+;{ evaluar @sumar(3,4) finEval}
+
+;d
+
+;letrec
+;     @restar(@a , @b) =
+;            Si @b entonces evaluar @restar(sub1(@a),sub1(@b)) finEval sino @a finSI
+;
+;{ evaluar @restar(10,3) finEval}
+;
+;
+;letrec
+;     @sumar(@a , @b) =
+;            Si @a entonces evaluar @sumar(sub1(@a),add1(@b)) finEval sino @b finSI
+;     @multiplicar(@a , @b) =
+;            Si @a entonces evaluar @sumar( evaluar @multiplicar(sub1(@a), @b) finEval , @b) finEval sino @a finSI
+;
+;{ evaluar @multiplicar(10,3) finEval}
+
+
+;e
+
+
+;procedimiento () haga "jose-y-seb" finProc
+;declarar(@saludar=procedimiento () haga "jose-y-seb" finProc){evaluar @saludar() finEval}
+;procedimiento (@m) haga ("a"concat@m) finProc
+
+
+;declarar(
+;@integrantes=procedimiento () haga "jose-y-seb" finProc;
+;@saludar = procedimiento (@m) haga ("Hola"concat@m) finProc )
+;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
+
+;declarar(
+;@integrantes =procedimiento () haga "jose-y-seb" finProc;
+;@saludar = procedimiento (@m) haga ("Hola"concat@m) finProc;
+;@decorate = procedimiento () haga evaluar @saludar(evaluar @integrantes() finEval) finEval finProc
+;)
+;{evaluar @decorate() finEval}
+
+;letrec
+;@integrantes() =procedimiento () haga "jose-y-seb" finProc
+;@saludar(@m) = procedimiento (@m) haga ("Hola-"concat@m) finProc
+;
+;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
+
+;letrec
+;@integrantes() = "jose-y-seb"
+;@saludar(@m) = ("Hola"concat@m) 
+;
+;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
+
+
+;ESTE ES EL BUENO
+;letrec
+;@integrantes() = "jose-y-seb"
+;@saludar(@m) = ("Hola"concat@m) 
+;@decorate() = evaluar @saludar(evaluar @integrantes() finEval) finEval
+;{evaluar @decorate() finEval}
 
 ;******************************************************************************************
 (interpretador)
