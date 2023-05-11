@@ -17,6 +17,8 @@
 ;;                         primapp-bin-exp (exp1 prim-binaria exp2)
 ;;                     ::= <primitiva-unaria> (<expresion>)
 ;;                         primapp-un-exp (prim-unaria exp)
+;;                     ::= Si <expresion> entonces <expresion> sino <expresion> finSI
+;;                     ..= condicional-exp(test-exp true-exp false-exp)
 ;;
 ;; <primitiva-binaria> ::= + (primitiva-suma)
 ;;                     ::= ~ (primitiva-resta)
@@ -52,26 +54,39 @@
 
 ;Especificación Sintáctica (Gramática)
 (define grammar-simple-interpreter
-  '((programa (expresion) un-programa)
-    
+  '(;Programa
+    (programa (expresion) un-programa)
+
+    ;Expresiones
     (expresion (numero) numero-lit)
     (expresion ("\""texto"\"") texto-lit)
     (expresion (identificador) var-exp)
     (expresion
      ("("expresion primitiva-binaria expresion")") primapp-bin-exp)
-    (expresion
-     (primitiva-unaria "("expresion")") primapp-un-exp)
-
+    (expresion (primitiva-unaria "("expresion")") primapp-un-exp)
+    ;Condicional
+    (expresion ("Si" expresion "entonces" expresion "sino" expresion "finSI") condicional-exp)
+    ;Variables Locales
+    (expresion ("declarar" "("  (separated-list identificador "=" expresion ";") ")" "{" expresion "}") variableLocal-exp)
+    ;Procedimientos
+    (expresion ("procedimiento" "(" (separated-list identificador ",") ")" "haga" expresion "finProc" ) procedimiento-exp)
+    (expresion ("evaluar" expresion "(" (separated-list expresion ",") ")""finEval") app-exp)
+    
+    ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
     (primitiva-binaria ("~") primitiva-resta)
     (primitiva-binaria ("/") primitiva-div)
     (primitiva-binaria ("*") primitiva-multi)
     (primitiva-binaria ("concat") primitiva-concat)
 
+    ;Primitivas-unarias
     (primitiva-unaria ("longitud") primitiva-longitud)
     (primitiva-unaria ("add1") primitiva-add1)
     (primitiva-unaria ("sub1") primitiva-sub1)
+    
     ))
+
+
 
 ;Construyendo datos automáticamente
 (sllgen:make-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)
@@ -115,7 +130,10 @@
 ; Ambiente inicial
 (define init-env
   (lambda ()
-     (empty-env)))
+    (extend-env
+     '(@a @b @c @d @e)
+     '(1 2 3 "hola" "FLP")
+     (empty-env))))
 
 ;eval-expresion: <expresion> <environment> -> numero
 ; evalua la expresion en el ambiente de entrada
@@ -124,7 +142,7 @@
     (cases expresion exp
       (numero-lit (num) num)
       (texto-lit (txt) txt)
-      (var-exp (id) (apply-env env id))
+      (var-exp (id) (buscar-variable env id))
       (primapp-bin-exp (exp1 prim-binaria exp2)
                        (let (
                              (args1 (eval-rand exp1 env))
@@ -136,12 +154,32 @@
                             (args (eval-rand exp env))
                             )
                         (apply-primitiva-unaria prim-unaria args)))
+      (condicional-exp (test-exp true-exp false-exp)
+                       (if (valor-verdad? (eval-expresion test-exp env))
+                           (eval-expresion true-exp env)
+                           (eval-expresion false-exp env)))
+      (variableLocal-exp (ids exps cuerpo)
+                          (let ((args (eval-rands exps env )))
+                           (eval-expresion cuerpo (extend-env ids args env))
+                           ))
+       (procedimiento-exp (ids cuerpo)
+        (cerradura ids cuerpo env)
+      )
+      (app-exp (rator rands)
+               (let ((proc (eval-expresion rator env))
+                     (args (eval-rands rands env)))
+                 (if (procVal? proc)
+                     (apply-procedure proc args)
+                     (eopl:error 'eval-expresion
+                                 "Attempt to apply non-procedure ~s" proc))))
+      
       )))
 
+
 ; Funcion auxiliar para aplicar eval-rand a cada elemento dentro de exp1 exp2
-;(define eval-rands
-  ;(lambda (rands env)
-    ;(map (lambda (x) (eval-rand x env)) rands)))
+(define eval-rands
+  (lambda (rands env)
+    (map (lambda (x) (eval-rand x env)) rands)))
 
 (define eval-rand
   (lambda (rand env)
@@ -166,6 +204,11 @@
       (primitiva-add1 () (+ exp 1))
       (primitiva-sub1 () (- exp 1))
       )))
+
+;valor-verdad? <expresion> -> Boolean
+(define valor-verdad?
+  (lambda(x)
+    (not (zero? x))))
 
 
 
@@ -195,16 +238,31 @@
     (extended-env-record syms vals env))) 
 
 ;función que busca un símbolo en un ambiente
-(define apply-env
+(define buscar-variable
   (lambda (env sym)
     (cases environment env
       (empty-env-record ()
-                        (eopl:error 'apply-env "No binding for ~s" sym))
+                        (eopl:error 'buscar-variable "Error, la variable no existe" sym))
       (extended-env-record (syms vals env)
                            (let ((pos (list-find-position sym syms)))
                              (if (number? pos)
                                  (list-ref vals pos)
-                                 (apply-env env sym)))))))
+                                 (buscar-variable env sym)))))))
+
+(define-datatype procVal procVal?
+  (cerradura
+   (lista-ID (list-of symbol?))
+   (exp expresion?)
+   (amb environment?)
+   )
+  )
+
+;apply-procedure: evalua el cuerpo de un procedimientos en el ambiente extendido correspondiente
+(define apply-procedure
+  (lambda (proc args)
+    (cases procVal proc
+      (cerradura (ids body env)
+               (eval-expresion body (extend-env ids args env))))))
 
 ;****************************************************************************************
 ;Funciones Auxiliares
