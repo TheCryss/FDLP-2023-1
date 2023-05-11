@@ -376,5 +376,32 @@
 ;@saludar = procedimiento (@m) haga ("Hola"concat@m) finProc )
 ;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
 
+;declarar(
+;@integrantes =procedimiento () haga "jose-y-seb" finProc;
+;@saludar = procedimiento (@m) haga ("Hola"concat@m) finProc;
+;@decorate = procedimiento () haga evaluar @saludar(evaluar @integrantes() finEval) finEval finProc
+;)
+;{evaluar @decorate() finEval}
+
+;letrec
+;@integrantes() =procedimiento () haga "jose-y-seb" finProc
+;@saludar(@m) = procedimiento (@m) haga ("Hola-"concat@m) finProc
+;
+;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
+
+;letrec
+;@integrantes() = "jose-y-seb"
+;@saludar(@m) = ("Hola"concat@m) 
+;
+;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
+
+
+;ESTE ES EL BUENO
+;letrec
+;@integrantes() = "jose-y-seb"
+;@saludar(@m) = ("Hola"concat@m) 
+;@decorate() = evaluar @saludar(evaluar @integrantes() finEval) finEval
+;{evaluar @decorate() finEval}
+
 ;******************************************************************************************
 (interpretador)
