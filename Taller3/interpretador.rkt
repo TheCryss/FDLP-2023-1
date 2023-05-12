@@ -1,5 +1,12 @@
 #lang eopl
 
+; Estudiantes:
+; Jose Luis Hincapie Bucheli - 2125340
+; Sebatian Idrobo Avirama - 2122637
+; Juan Sebastian Getial Getial - 2124644
+
+;REPOSITORIO: https://github.com/TheCryss/FDLP-2023-1
+
 ;******************************************************************************************
 ;;;;; Interpretador Simple
 
@@ -14,11 +21,19 @@
 ;;                     ::= <identificador>
 ;;                         <var-exp (id)>
 ;;                     ::= (<expresion> <primitiva-binaria> <expresion>)
-;;                         primapp-bin-exp (exp1 prim-binaria exp2)
+;;                         <primapp-bin-exp (exp1 prim-binaria exp2)>
 ;;                     ::= <primitiva-unaria> (<expresion>)
-;;                         primapp-un-exp (prim-unaria exp)
+;;                         <primapp-un-exp (prim-unaria exp)>
 ;;                     ::= Si <expresion> entonces <expresion> sino <expresion> finSI
-;;                     ..= condicional-exp(test-exp true-exp false-exp)
+;;                         <condicional-exp (test-exp true-exp false-exp)>
+;;                     ::= declarar ({<identificador>=<expresion>}*(;)) {<expresion>}
+;;                         <variableLocal-exp (ids exps cuerpo)
+;;                     ::= procedimiento ({<identificador>}*(,)) haga <expresion> finProc
+;;                         <procedimiento-exp (ids cuerpo)>
+;;                     ::= evaluar <expresion> ({expresion}*(,)) finEval
+;;                         <app-exp (rator rands)>
+;;                     ::= letrec {<identificador> ({<identificador}*(,)) = <expresion>}* {<expresion>}
+;;                         <letrec-exp (proc-names idss bodies letrec-body)
 ;;
 ;; <primitiva-binaria> ::= + (primitiva-suma)
 ;;                     ::= ~ (primitiva-resta)
@@ -39,7 +54,7 @@
     (comentario ;Comentarios
      ("//" (arbno (not #\newline))) skip)
     (texto
-     (letter (arbno (or letter digit "-"))) string)
+     ((or letter "-") (arbno (or letter digit "-" ":"))) string)
     (identificador ;Identificadores
      ("@" (arbno letter)) symbol)
     (numero ;Número entero positivo
@@ -74,6 +89,7 @@
     ;Recursividad
      (expresion ("letrec" (arbno identificador "(" (separated-list identificador ",") ")" "=" expresion)  "{" expresion "}") 
                 letrec-exp)
+     
     ;Primitivas-binarias
     (primitiva-binaria ("+") primitiva-suma)
     (primitiva-binaria ("~") primitiva-resta)
@@ -100,12 +116,10 @@
 ;Parser, Scanner, Interfaz
 
 ;El FrontEnd (Análisis léxico (scanner) y sintáctico (parser) integrados)
-
 (define scan&parse
   (sllgen:make-string-parser scanner-spec-simple-interpreter grammar-simple-interpreter))
 
 ;El Analizador Léxico (Scanner)
-
 (define just-scan
   (sllgen:make-string-scanner scanner-spec-simple-interpreter grammar-simple-interpreter))
 
@@ -121,7 +135,7 @@
 ;El Interprete
 
 ;eval-program: <programa> -> numero
-; función que evalúa un programa teniendo en cuenta un ambiente dado (se inicializa dentro del programa)
+;Función que evalúa un programa teniendo en cuenta un ambiente dado (Se inicializa dentro del programa)
 
 (define eval-program
   (lambda (pgm)
@@ -129,7 +143,8 @@
       (un-programa (body)
                    (eval-expresion body (init-env))))))
 
-; Ambiente inicial
+;Ambiente inicial
+;Inicializa y declara el ambiente con el que el interpretador comenzará
 (define init-env
   (lambda ()
     (extend-env
@@ -138,7 +153,7 @@
      (empty-env))))
 
 ;eval-expresion: <expresion> <environment> -> numero
-; evalua la expresion en el ambiente de entrada
+;Evalua la expresion en el ambiente de entrada
 (define eval-expresion
   (lambda (exp env)
     (cases expresion exp
@@ -182,11 +197,12 @@
       
 
 
-; Funcion auxiliar para aplicar eval-rand a cada elemento dentro de exp1 exp2
+;Función auxiliar para aplicar eval-rand a cada elemento dentro de exp1 exp2
 (define eval-rands
   (lambda (rands env)
     (map (lambda (x) (eval-rand x env)) rands)))
 
+;Función auxiliar para evaluar un "rand".
 (define eval-rand
   (lambda (rand env)
     (eval-expresion rand env)))
@@ -212,6 +228,7 @@
       )))
 
 ;valor-verdad? <expresion> -> Boolean
+;Evalua si un valor es #t, siendo #f si el valor es 0
 (define valor-verdad?
   (lambda(x)
     (not (zero? x))))
@@ -273,6 +290,7 @@
                                                       env)
                                              (buscar-variable old-env sym)))))))
 
+;Función que se encarga de realizar cerraduras
 (define-datatype procVal procVal?
   (cerradura
    (lista-ID (list-of symbol?))
@@ -310,14 +328,14 @@
 
 
 ;************************************* PARTE A EVALAUAR ***********************************
- ;a
+;INCISO a)
 
 ;declarar (
 ;
 ;      @radio=2.5;
 ;      @pi=3.14159265358979323846;
 ;
-;      @areaCirculo= procedimiento (@radio) haga ( 3.14159265358979323846 *(@radio * @radio)) finProc
+;      @areaCirculo= procedimiento (@radio) haga (@pi *(@radio * @radio)) finProc
 ;
 ;     ) { 
 ;
@@ -325,7 +343,7 @@
 ;
 ;       }
 
-;b
+;INCISO b)
 
 ;letrec 
 ;       @factorial(@numero) = 
@@ -338,14 +356,14 @@
 ;        { evaluar @factorial (10) finEval }
 
 
-;c
+;INCISO c)
 
 ;letrec
 ;     @sumar(@a , @b) =
 ;            Si @a entonces evaluar @sumar(sub1(@a),add1(@b)) finEval sino @b finSI
 ;{ evaluar @sumar(3,4) finEval}
 
-;d
+;INCISO d)
 
 ;letrec
 ;     @restar(@a , @b) =
@@ -363,45 +381,22 @@
 ;{ evaluar @multiplicar(10,3) finEval}
 
 
-;e
-
-
-;procedimiento () haga "jose-y-seb" finProc
-;declarar(@saludar=procedimiento () haga "jose-y-seb" finProc){evaluar @saludar() finEval}
-;procedimiento (@m) haga ("a"concat@m) finProc
-
-
-;declarar(
-;@integrantes=procedimiento () haga "jose-y-seb" finProc;
-;@saludar = procedimiento (@m) haga ("Hola"concat@m) finProc )
-;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
-
-;declarar(
-;@integrantes =procedimiento () haga "jose-y-seb" finProc;
-;@saludar = procedimiento (@m) haga ("Hola"concat@m) finProc;
-;@decorate = procedimiento () haga evaluar @saludar(evaluar @integrantes() finEval) finEval finProc
-;)
+;INCISO e)
+;letrec
+;@integrantes() = "José-Sebastián-y-Sebastián"
+;@saludar(@m) = ("Hola:" concat evaluar @m() finEval) 
+;@decorate() = evaluar @saludar(@integrantes) finEval
 ;{evaluar @decorate() finEval}
 
-;letrec
-;@integrantes() =procedimiento () haga "jose-y-seb" finProc
-;@saludar(@m) = procedimiento (@m) haga ("Hola-"concat@m) finProc
-;
-;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
 
+;INCISO f)
 ;letrec
-;@integrantes() = "jose-y-seb"
-;@saludar(@m) = ("Hola"concat@m) 
-;
-;{evaluar @saludar(evaluar @integrantes() finEval) finEval}
+;@integrantes() = "José-Sebastián-y-Sebastián"
+;@saludar(@m) = ("Hola:" concat evaluar @m() finEval)
+;@decorate(@m) = (evaluar @saludar(@integrantes) finEval concat @m)
+;{evaluar @decorate("-EstudiantesFLP") finEval}
+;//Retorna "Hola:José-Sebastián-y-Sebastián-EstudiantesFLP"
 
-
-;ESTE ES EL BUENO
-;letrec
-;@integrantes() = "jose-y-seb"
-;@saludar(@m) = ("Hola"concat@m) 
-;@decorate() = evaluar @saludar(evaluar @integrantes() finEval) finEval
-;{evaluar @decorate() finEval}
 
 ;******************************************************************************************
 (interpretador)
