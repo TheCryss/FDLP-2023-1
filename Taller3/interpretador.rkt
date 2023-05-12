@@ -333,9 +333,7 @@
 ;declarar (
 ;
 ;      @radio=2.5;
-;      @pi=3.14159265358979323846;
-;
-;      @areaCirculo= procedimiento (@radio) haga (@pi *(@radio * @radio)) finProc
+;      @areaCirculo= procedimiento (@radio) haga (3.14159265358979323846 *(@radio * @radio)) finProc
 ;
 ;     ) { 
 ;
