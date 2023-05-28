@@ -31,6 +31,7 @@
 
     (expr-bool (bool) simple-expr-bool)
     (expr-bool (pred-prim "(" expression "," expression ")") pred-prim-expr-bool)
+    (expr-bool (oper-bin-bool "(" expr-bool "," expr-bool ")") oper-bin-bool-expr-bool)
 
     ; Operarations
     (oper-un-bool ("not") negation-oper-un-bool)
@@ -253,6 +254,20 @@
       (pred-prim-expr-bool (pred-prim exp1 exp2)
         (eval-pred-prim pred-prim exp1 exp2 env)
       )
+      (oper-bin-bool-expr-bool (oper-bin-b expr-b1 expr-b2)
+        (let ((expr1 (eval-expr-bool expr-b1 env))
+              (expr2 (eval-expr-bool expr-b2 env)))
+              (eval-oper-bin-bool oper-bin-b expr1 expr2))
+      )
+    )
+  )
+)
+
+(define eval-oper-bin-bool
+  (lambda (oper-bin-b expr1 expr2)
+    (cases oper-bin-bool oper-bin-b
+      (and-oper-bin-bool () (and expr1 expr2))
+      (or-oper-bin-bool () (or expr1 expr2))
     )
   )
 )
