@@ -25,13 +25,26 @@
     (expression (number) lit-exp)
     ; Cadena
     (expression ("\""texto"\"") texto-lit)
-    ; Booleanos
+    ; Booleanos /////////////////////
     (bool ("true") true-bool)
     (bool ("false") false-bool)
 
-    (expr-bool (bool) simple-bool)
+    (expr-bool (bool) simple-expr-bool)
+    (expr-bool (pred-prim "(" expression "," expression ")") pred-prim-expr-bool)
+
+    ; Operarations
+    (oper-un-bool ("not") negation-oper-un-bool)
+    (oper-bin-bool ("and") and-oper-bin-bool)
+    (oper-bin-bool ("or") or-oper-bin-bool)
+    (pred-prim ("<") smaller-than-pred-prim)
+    (pred-prim (">") greater-than-pred-prim)
+    (pred-prim ("<=") less-equal-to-pred-prim)
+    (pred-prim (">=") greater-equal-to-pred-prim)
+    (pred-prim ("==") equal-to-pred-prim)
+    (pred-prim ("<>") not-equal-to-pred-prim)
 
     (expression (expr-bool) bool-exp)
+    ; ///////////////////////////////
 
     (expression (identifier) var-exp)   
     (expression
@@ -136,13 +149,13 @@
       ; Cadena
       (texto-lit (txt) txt)
       ; Booleano
-      (bool-exp (exp-bool) (eval-expr-bool exp-bool))
+      (bool-exp (exp-bool) (eval-expr-bool exp-bool env))
       (var-exp (id) (apply-env env id))
       (primapp-exp (prim rands)
         (let ((args (eval-rands rands env)))
           (apply-primitive prim args)))
       (if-exp (test-exp true-exp false-exp)
-        (if (true-value? (eval-expression test-exp env))
+        (if (eval-expr-bool test-exp env)
           (eval-expression true-exp env)
           (eval-expression false-exp env)))
       (let-exp (ids rands body)
@@ -234,9 +247,37 @@
 )
 
 (define eval-expr-bool
-  (lambda (exp-bool)
+  (lambda (exp-bool env)
     (cases expr-bool exp-bool
-      (simple-bool (bool) (eval-bool bool))
+      (simple-expr-bool (bool) (eval-bool bool))
+      (pred-prim-expr-bool (pred-prim exp1 exp2)
+        (eval-pred-prim pred-prim exp1 exp2 env)
+      )
+    )
+  )
+)
+
+(define eval-pred-prim
+  (lambda (pred-p exp1 exp2 env)
+    (cases pred-prim pred-p
+      (smaller-than-pred-prim () 
+        (< (eval-expression exp1 env) (eval-expression exp2 env))
+      )
+      (greater-than-pred-prim () 
+        (> (eval-expression exp1 env) (eval-expression exp2 env))
+      )
+      (less-equal-to-pred-prim () 
+        (<= (eval-expression exp1 env) (eval-expression exp2 env))
+      )
+      (greater-equal-to-pred-prim () 
+        (>= (eval-expression exp1 env) (eval-expression exp2 env))
+      )
+      (equal-to-pred-prim () 
+        (eqv? (eval-expression exp1 env) (eval-expression exp2 env))
+      )
+      (not-equal-to-pred-prim () 
+        (not (eqv? (eval-expression exp1 env) (eval-expression exp2 env)))
+      )
     )
   )
 )
