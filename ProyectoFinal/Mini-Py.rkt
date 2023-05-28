@@ -8,18 +8,37 @@
     (identifier
       (letter (arbno (or letter digit "_" "-" "?")))
       symbol)
-    (number (digit (arbno digit)) number)))
+    ; Numeros enteros y flotantes
+    (number (digit (arbno digit)) number)
+    (number ("-" digit (arbno digit)) number)
+    (number (digit (arbno digit) "." digit (arbno digit)) number)
+    (number ("-" digit (arbno digit) "." digit (arbno digit)) number)
+    ; Cadena
+    (texto
+     ((or letter "-") (arbno (or letter digit "-" ":"))) string)
+  )
+)
 
 (define the-grammar
   '((program ((arbno class-decl) expression) a-program)
-
+    ; Numeros Flotantes o Enteros
     (expression (number) lit-exp)
+    ; Cadena
+    (expression ("\""texto"\"") texto-lit)
+    ; Booleanos
+    (bool ("true") true-bool)
+    (bool ("false") false-bool)
+
+    (expr-bool (bool) simple-bool)
+
+    (expression (expr-bool) bool-exp)
+
     (expression (identifier) var-exp)   
     (expression
       (primitive "(" (separated-list expression ",") ")")
       primapp-exp)
     (expression
-      ("if" expression "then" expression "else" expression)
+      ("if" expr-bool "then" expression "else" expression)
       if-exp)
    (expression
       ("let" (arbno  identifier "=" expression) "in" expression)
@@ -114,6 +133,10 @@
     (cases expression exp
       (mostrar-exp () the-class-env)
       (lit-exp (datum) datum)
+      ; Cadena
+      (texto-lit (txt) txt)
+      ; Booleano
+      (bool-exp (exp-bool) (eval-expr-bool exp-bool))
       (var-exp (id) (apply-env env id))
       (primapp-exp (prim rands)
         (let ((args (eval-rands rands env)))
@@ -200,6 +223,23 @@
       (empty-env))))
 
 ;^;;;;;;;;;;;;;;; booleans ;;;;;;;;;;;;;;;;
+
+(define eval-bool
+  (lambda (b)
+    (cases bool b
+      (true-bool () #t)
+      (false-bool () #f)
+    )
+  )
+)
+
+(define eval-expr-bool
+  (lambda (exp-bool)
+    (cases expr-bool exp-bool
+      (simple-bool (bool) (eval-bool bool))
+    )
+  )
+)
 
 (define true-value?
   (lambda (x)
