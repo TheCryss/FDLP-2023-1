@@ -6,7 +6,7 @@
   '((whitespace (whitespace) skip)
     (comment ("%" (arbno (not #\newline))) skip)
     (identifier
-      (letter (arbno (or letter digit "_" "-" "?")))
+      ("@" letter (arbno (or letter digit "_" "-" "?")))
       symbol)
     ; Numeros enteros y flotantes
     (number (digit (arbno digit)) number)
@@ -56,8 +56,11 @@
       ("if" expr-bool "then" expression "else" expression)
       if-exp)
    (expression
-      ("let" (arbno  identifier "=" expression) "in" expression)
+      ("var" (arbno  identifier "=" expression) "in" expression)
       let-exp)
+   (expression
+      ("const" (arbno  identifier "=" expression) "in" expression)
+      const-exp) 
     (expression
       ("proc" "(" (separated-list identifier ",") ")" expression)
       proc-exp)
@@ -65,7 +68,7 @@
       ("(" expression (arbno expression) ")")
       app-exp)
     (expression                         
-      ("letrec"
+      ("rec"
         (arbno identifier "(" (separated-list identifier ",") ")"
           "=" expression)
         "in" expression)
@@ -163,6 +166,9 @@
       (let-exp (ids rands body)
         (let ((args (eval-rands rands env)))
           (eval-expression body (extend-env ids args env))))
+      (const-exp (ids rands body)
+        (let ((args (eval-rands rands env)))
+          (eval-expression body (extend-env-constant ids args env))))
       (proc-exp (ids body)
         (closure ids body env))
       (app-exp (rator rands)
@@ -380,19 +386,26 @@
 (define-datatype reference reference?
   (a-ref
     (position integer?)
+    (vec vector?))
+  (a-const
+    (position integer?)
     (vec vector?)))
 
 (define deref 
   (lambda (ref)
     (cases reference ref
       (a-ref (pos vec)
-             (vector-ref vec pos)))))
+             (vector-ref vec pos))
+      (a-const (pos vec)
+              (vector-ref vec pos)))))
 
 (define setref! 
   (lambda (ref val)
     (cases reference ref
       (a-ref (pos vec)
-        (vector-set! vec pos val)))
+        (vector-set! vec pos val))
+      (a-const (pos vec)
+        (eopl:error 'setref! "No se puede cambiar el valor de una constante")))
     1))
 
 ;^;;;;;;;;;;;;;;; environments ;;;;;;;;;;;;;;;;
@@ -402,6 +415,10 @@
   (extended-env-record
     (syms (list-of symbol?))
     (vec vector?)              ; can use this for anything.
+    (env environment?))
+  (extended-env-constant
+    (syms (list-of symbol?))
+    (vals vector?)              ; can use this for anything.
     (env environment?))
   )
 
@@ -413,6 +430,10 @@
   (lambda (syms vals env)
     (extended-env-record syms (list->vector vals) env)))
 
+(define extend-env-constant
+  (lambda (syms vals env)
+    (extended-env-constant syms (list->vector vals) env)))
+
 (define apply-env-ref
   (lambda (env sym)
     (cases environment env
@@ -422,6 +443,11 @@
         (let ((pos (rib-find-position sym syms)))
           (if (number? pos)
               (a-ref pos vals)
+              (apply-env-ref env sym))))
+      (extended-env-constant (syms vals env)
+        (let ((pos (rib-find-position sym syms)))
+          (if (number? pos)
+              (a-const pos vals)
               (apply-env-ref env sym)))))))
 
 (define apply-env
