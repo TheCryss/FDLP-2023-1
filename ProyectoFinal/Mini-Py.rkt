@@ -23,6 +23,8 @@
   '((program ((arbno class-decl) expression) a-program)
     ; Numeros Flotantes o Enteros
     (expression (number) lit-exp)
+    ; Bignum
+    (expression ("x" number "(" (arbno number) ")") bignum-exp) ;LLeva un espacio luego de la x
     ; Cadena
     (expression ("\""texto"\"") texto-lit)
     ; Booleanos /////////////////////
@@ -151,6 +153,8 @@
     (cases expression exp
       (mostrar-exp () the-class-env)
       (lit-exp (datum) datum)
+      ; bignum
+      (bignum-exp (base numbers) (eval-bignum-exp base numbers))
       ; Cadena
       (texto-lit (txt) txt)
       ; Booleano
@@ -236,12 +240,44 @@
       (null?-prim () (if (null? (car args)) 1 0))
       )))
 
+(define eval-bignum-exp
+  (lambda (base numbers)
+    [cond
+      [(null? numbers)
+        0
+      ]
+      [else
+        (eval-bignum base numbers 0)
+      ]
+    ]
+  )
+)
+
+(define eval-bignum
+  (lambda (base numbers init)
+    [cond
+      [(null? numbers)
+        0
+      ]
+      [else
+        (let
+          (
+            (n (* (car numbers) (expt base init)))
+          )
+          (+ n (eval-bignum base (cdr numbers) (+ init 1)))
+        )
+      ]
+    ]
+  )
+)
+
 (define init-env 
   (lambda ()
     (extend-env
       '(i v x)
       '(1 5 10)
       (empty-env))))
+
 
 ;^;;;;;;;;;;;;;;; booleans ;;;;;;;;;;;;;;;;
 
