@@ -1,26 +1,6 @@
 #lang eopl
 
-; Estudiantes:
-; Jose Luis Hincapie Bucheli - 2125340
-; Sebatian Idrobo Avirama - 2122637
-; Juan Sebastian Getial Getial - 2124644
-
-;REPOSITORIO: https://github.com/TheCryss/FDLP-2023-1
-
-
-;*****************************************************************************************
-;;;;; Miny-Py
-
-;; La definición BNF para las expresiones del lenguaje:
-;;
-;;[Insertar definición aquí]
-;;
-;;
-
-;******************************************************************************************
-
-
-;;;;;;;;;;;;;;;; grammatical specification ;;;;;;;;;;;;;;;;
+;^;;;;;;;;;;;;;;; grammatical specification ;;;;;;;;;;;;;;;;
 
 (define the-lexical-spec
   '((whitespace (whitespace) skip)
@@ -43,8 +23,6 @@
   '((program ((arbno class-decl) expression) a-program)
     ; Numeros Flotantes o Enteros
     (expression (number) lit-exp)
-    ; Bignum
-    (expression ("x" number "(" (arbno number) ")") bignum-exp) ;LLeva un espacio luego de la x
     ; Cadena
     (expression ("\""texto"\"") texto-lit)
     ; Booleanos /////////////////////
@@ -173,8 +151,6 @@
     (cases expression exp
       (mostrar-exp () the-class-env)
       (lit-exp (datum) datum)
-      ; bignum
-      (bignum-exp (base numbers) (eval-bignum-exp base numbers))
       ; Cadena
       (texto-lit (txt) txt)
       ; Booleano
@@ -260,44 +236,12 @@
       (null?-prim () (if (null? (car args)) 1 0))
       )))
 
-(define eval-bignum-exp
-  (lambda (base numbers)
-    [cond
-      [(null? numbers)
-        0
-      ]
-      [else
-        (eval-bignum base numbers 0)
-      ]
-    ]
-  )
-)
-
-(define eval-bignum
-  (lambda (base numbers init)
-    [cond
-      [(null? numbers)
-        0
-      ]
-      [else
-        (let
-          (
-            (n (* (car numbers) (expt base init)))
-          )
-          (+ n (eval-bignum base (cdr numbers) (+ init 1)))
-        )
-      ]
-    ]
-  )
-)
-
 (define init-env 
   (lambda ()
     (extend-env
       '(i v x)
       '(1 5 10)
       (empty-env))))
-
 
 ;^;;;;;;;;;;;;;;; booleans ;;;;;;;;;;;;;;;;
 
