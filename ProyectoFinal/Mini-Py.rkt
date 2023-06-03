@@ -87,6 +87,7 @@
     ; ///////////////////////////////
     (expression (unary-primitive "(" expression ")") unary-primitive-exp)
     (expression (list-primitive "(" identifier "," (separated-list expression ",") ")") list-primitive-exp)
+
     (expression (identifier) var-exp)   
     (expression
       (primitive "(" (separated-list expression ",") ")")
@@ -116,6 +117,7 @@
     (expression
       ("begin" expression (arbno ";" expression) "end")
       begin-exp)
+    (expression ("while" expr-bool "do" expression "done") while-exp)
 
     (primitive ("+")     add-prim)
     (primitive ("-")     subtract-prim)
@@ -237,6 +239,12 @@
                    (exps exps))
           (if (null? exps) acc
             (loop (eval-expression (car exps) env) (cdr exps)))))
+      (while-exp (expr-b expr) 
+        (let loop ((condition expr-b)
+                    (expr-e expr))
+          (if (eval-expr-bool condition env) 
+            (loop condition (eval-expression expr env))
+            1)))
 ;^;;;;;;;;;;;;;;; begin new cases for chap 5 ;;;;;;;;;;;;;;;;
       (new-object-exp (class-name rands)
         (let ((args (eval-rands rands env))
