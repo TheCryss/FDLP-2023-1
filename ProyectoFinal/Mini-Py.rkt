@@ -70,6 +70,22 @@
     (expression (expr-bool) bool-exp)
     ; ///////////////////////////////
 
+    ; ///////////////////////////////
+    ; Listas
+    (expr-lista ("[" (separated-list expression ";") "]") simple-expr-lista)
+    (expression (expr-lista) expr-lista-exp)
+
+    ; Primitivas
+    (unary-primitive ("vacio?") is-null-primitive)
+    (unary-primitive ("vacio") null-primitive)
+    (unary-primitive ("lista?") is-lista-primitive)
+    (unary-primitive ("cabeza") car-primitive)
+    (unary-primitive ("cola") cdr-primitive)
+    (list-primitive ("append") append-primitive)
+    (list-primitive ("ref-list") ref-primitive)
+    ; ///////////////////////////////
+    (expression (unary-primitive "(" expression ")") unary-primitive-exp)
+    (expression (list-primitive "(" identifier "," (separated-list expression ",") ")") list-primitive-exp)
     (expression (identifier) var-exp)   
     (expression
       (primitive "(" (separated-list expression ",") ")")
@@ -106,12 +122,6 @@
     (primitive ("add1")  incr-prim)
     (primitive ("sub1")  decr-prim)
     (primitive ("zero?") zero-test-prim)
-    (primitive ("list") list-prim)
-    (primitive ("cons") cons-prim)
-    (primitive ("nil")  nil-prim)
-    (primitive ("car")  car-prim)
-    (primitive ("cdr")  cdr-prim)
-    (primitive ("null?") null?-prim)
 
 ;^;;;;;;;;;;;;;;; new productions for oop ;;;;;;;;;;;;;;;;
 
@@ -179,6 +189,16 @@
       (texto-lit (txt) txt)
       ; Booleano
       (bool-exp (exp-bool) (eval-expr-bool exp-bool env))
+      ; Lista
+      (expr-lista-exp (expr-lista) (eval-expr-lista expr-lista env))
+      ; Primitivas unarias
+      (unary-primitive-exp (un-prim expr) (apply-unary-primitive 
+                                                un-prim 
+                                                (eval-expression expr env)))
+      (list-primitive-exp (bin-prim list-id rands) (apply-list-primitive
+                                                bin-prim
+                                                (apply-env-ref env list-id)
+                                                (eval-rands rands env)))
       (var-exp (id) (apply-env env id))
       (primapp-exp (prim rands)
         (let ((args (eval-rands rands env)))
@@ -252,13 +272,72 @@
       (incr-prim  () (+ (car args) 1))
       (decr-prim  () (- (car args) 1))
       (zero-test-prim () (if (zero? (car args)) 1 0))
-      (list-prim () args)               ;already a list
-      (nil-prim () '())
-      (car-prim () (car (car args)))
-      (cdr-prim () (cdr (car args)))
-      (cons-prim () (cons (car args) (cadr args)))
-      (null?-prim () (if (null? (car args)) 1 0))
+      ;(list-prim () args)               ;already a list
+      ;(nil-prim () '())
+      ;(car-prim () (car (car args)))
+      ;(cdr-prim () (cdr (car args)))
+      ;(cons-prim () (cons (car args) (cadr args)))
+      ;(null?-prim () (if (null? (car args)) 1 0))
       )))
+
+(define apply-unary-primitive
+  (lambda (un-prim arg)
+    (cases unary-primitive un-prim
+      (is-null-primitive () 
+        (cases lista arg
+          (lista-vacia () #t)
+          (else #f)
+        )
+      )
+      (null-primitive () lista-vacia)
+      (is-lista-primitive () (lista? arg))
+      (car-primitive () 
+        (cases lista arg
+          (lista-vacia () (eopl:error 'apply-unary-primitive
+                            "List index out of range"))
+          (lista-extendida (vals) (vector-ref vals 0))
+        )
+      )
+      (cdr-primitive () 
+        (cases lista arg
+          (lista-vacia () (eopl:error 'apply-unary-primitive
+                            "List index out of range"))
+          (lista-extendida (vals) 
+            (letrec ((vals-l (vector->list vals))
+                      (cdr-vals-l (cdr vals-l)))
+              (if (null? cdr-vals-l)
+                lista-vacia
+                (lista-extendida (list->vector cdr-vals-l)))))
+        )
+      )
+    )
+  )
+)
+
+(define apply-list-primitive
+  (lambda (l-prim list-ref rands)
+    (let ((l (deref list-ref))
+          (val (car rands)))
+      (cases list-primitive l-prim
+        (append-primitive () 
+          (let ((new-list 
+                  (cases lista l
+                    (lista-vacia () (lista-extendida (vector val)))
+                    (lista-extendida (vals) (letrec ((vals-l (vector->list vals))
+                                                      (new-vals (append vals-l (list val))))
+                                              (lista-extendida (list->vector new-vals))))
+                  )))
+            (setref! list-ref new-list)))
+        (ref-primitive () 
+          (cases lista l
+            (lista-vacia () (eopl:error 'apply-unary-primitive
+                            "List index out of range"))
+            (lista-extendida (vals) (vector-ref vals val))
+          )
+        )
+      ))
+  )
+)
 
 (define eval-bignum-exp
   (lambda (base numbers)
@@ -290,6 +369,27 @@
     ]
   )
 )
+
+(define-datatype lista lista?
+  (lista-vacia)
+  (lista-extendida
+    (vals vector?)
+  )
+)
+
+(define eval-expr-lista
+  (lambda (expr-l env)
+    (cases expr-lista expr-l
+      (simple-expr-lista (exps)
+        (let ((vals (eval-rands exps env)))
+        (if (null? vals)
+          (lista-vacia)
+          (lista-extendida (list->vector vals))))
+      )
+    )
+  )
+)
+
 
 (define init-env 
   (lambda ()
