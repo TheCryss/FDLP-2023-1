@@ -82,7 +82,8 @@
     (unary-primitive ("cabeza") car-primitive)
     (unary-primitive ("cola") cdr-primitive)
     (list-primitive ("append") append-primitive)
-    (list-primitive ("ref-list") ref-primitive)
+    (list-primitive ("ref-list") ref-list-primitive)
+    (list-primitive ("set-list") set-list-primitive)
     ; ///////////////////////////////
     (expression (unary-primitive "(" expression ")") unary-primitive-exp)
     (expression (list-primitive "(" identifier "," (separated-list expression ",") ")") list-primitive-exp)
@@ -317,7 +318,8 @@
 (define apply-list-primitive
   (lambda (l-prim list-ref rands)
     (let ((l (deref list-ref))
-          (val (car rands)))
+          (val (car rands))
+          (pos (cadr rands)))
       (cases list-primitive l-prim
         (append-primitive () 
           (let ((new-list 
@@ -328,12 +330,19 @@
                                               (lista-extendida (list->vector new-vals))))
                   )))
             (setref! list-ref new-list)))
-        (ref-primitive () 
+        (ref-list-primitive () 
           (cases lista l
-            (lista-vacia () (eopl:error 'apply-unary-primitive
+            (lista-vacia () (eopl:error 'apply-list-primitive
                             "List index out of range"))
             (lista-extendida (vals) (vector-ref vals val))
           )
+        )
+        (set-list-primitive ()
+          (cases lista l
+                    (lista-vacia () (eopl:error 'apply-list-primitive
+                            "List index out of range"))
+                    (lista-extendida (vals) (vector-set! vals pos val))
+                  )
         )
       ))
   )
