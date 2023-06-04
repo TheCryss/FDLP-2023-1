@@ -47,8 +47,12 @@
 ;;                           <letrec-exp (proc-names idss bodies letrec-body)>
 ;;                       ::= set <identifier> = <expression>
 ;;                           <varassign-exp (id rhs-exp)>
-;;                       ::= begin <expression> 
-;;
+;;                       ::= begin <expression> {; <expression>}* end
+;;                           <begin-exp (exp1 exps)>
+;;                       ::= while <expr-bool> do <expression> done
+;;                           <while-exp (expr-b expr)
+;;                       ::= for <identifier> = <expression> <iterator> <expression> do <expression> done
+;;                           <for-exp (i init iterator limit expr)>
 ;;
 ;;  <bool>               ::= true+
 ;;                           <true-bool>
@@ -104,6 +108,23 @@
 ;;                           <ref-list-primitive>
 ;;                       ::= set-list
 ;;                           <set-list-primitive>
+;;
+;;  <iterator>           ::= to
+;;                           <to-iterator>
+;;                       ::= downto
+;;                           <downto-iterator>
+;;  <primitive>          ::= +
+;;                           <add-prim>
+;;                       ::= -
+;;                           <substract-prim>
+;;                       ::= *
+;;                           <mult-prim>
+;;                       ::= add1
+;;                           <incr-prim>
+;;                       ::= sub1
+;;                           <decr-prim>
+;;                       ::= zero?
+;;                           <zero-test-prim>
 ;;
 ;; TO-DO: OOP
 
@@ -213,7 +234,7 @@
     (iterator ("downto") downto-iterator)
 
     (primitive ("+")     add-prim)
-    (primitive ("-")     subtract-prim)
+    (primitive ("-")     substract-prim)
     (primitive ("*")     mult-prim)
     (primitive ("add1")  incr-prim)
     (primitive ("sub1")  decr-prim)
