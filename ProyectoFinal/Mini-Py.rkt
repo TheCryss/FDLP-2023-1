@@ -25,6 +25,10 @@
 ;;                           <bool-exp (exp-bool)>
 ;;                       ::= <expr-lista>
 ;;                           <expr-lista-exp (expr-lista)>
+;;                       ::= <unary-primitive (<expression>)
+;;                           <unary-primitive-exp (un-prim expr)
+;;                       ::= <list-primitive (<identifier>,{<expression>}*(,))>
+;;                           <list-primitive-exp (bin-prim list-id rands)>
 ;;
 ;;  <bool>               ::= true
 ;;                           <true-bool>
@@ -66,10 +70,22 @@
 ;;
 ;;  <unary-primitive>    ::= vacio?
 ;;                           <is-null-primitive>
-;;                       
+;;                       ::= vacio
+;;                           <null-primitive>
+;;                       ::= lista?
+;;                           <is-lista-primitive>
+;;                       ::= cabeza
+;;                           <car-primitive>
+;;                       ::= cola
+;;                           <cdr-primitive>
+;;                       ::= append
+;;                           <append-primitive>
+;;                       ::= ref-list
+;;                           <ref-list-primitive>
+;;                       ::= set-list
+;;                           <set-list-primitive>
 ;;
-;;
-
+;; TO-DO: OOP
 
 ;******************************************************************************************
 
