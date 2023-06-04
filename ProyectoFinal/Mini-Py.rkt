@@ -21,18 +21,52 @@
 ;;                           <bignum-exp (base numbers)>
 ;;                       ::= "\""<texto>"\""
 ;;                           <texto-lit (txt)>
+;;                       ::= <expr-bool>
+;;                           <bool-exp (exp-bool)>
+;;                       ::= <expr-lista>
+;;                           <expr-lista-exp (expr-lista)>
 ;;
-;;
-;;
-;;
-;;  <bool>               ::= "true"
+;;  <bool>               ::= true
 ;;                           <true-bool>
-;;                       ::= "false"
+;;                       ::= false
 ;;                           <false-bool>
 ;;
+;;  <expr-bool>          ::= <bool>
+;;                           <simple-expr-bool (bool)>
+;;                       ::= <pred-prim> (<expression>,<expression>)
+;;                           <pred-prim-expr-bool (pred-prim exp1 exp2)
+;;                       ::= <oper-bin-bool> (<expr-bool>,<expr-bool>)
+;;                           <oper-bin-bool-expr-bool (oper-bin-b expr-b1 expr-b2)>
+;;                       ::= <oper-un-bool> (<expr-bool>)
+;;                           <oper-un-bool-expr-bool (oper-un-b expr-b)
 ;;
+;;  <oper-un-bool>       ::= not
+;;                           <negation-oper-un-bool>
 ;;
+;;  <oper-bin-bool>      ::= and
+;;                           <and-oper-bin-bool>
+;;                       ::= or
+;;                           <or-oper-bin-bool>
 ;;
+;;  <pred-prim>          ::= <
+;;                           <smaller-than-pred-prim>
+;;                       ::= >
+;;                           <greater-than-pred-prim>
+;;                       ::= <=
+;;                           <less-equal-to-pred-prim>
+;;                       ::= >=
+;;                           <greater-equal-to-pred-prim>
+;;                       ::= ==
+;;                           <equal-to-pred-prim>
+;;                       ::= <>
+;;                           <not-equal-to-pred-prim>
+;;
+;;  <expr-lista>         ::= [{<expression>}*(;)]
+;;                           <simple-expr-lista (exps)
+;;
+;;  <unary-primitive>    ::= vacio?
+;;                           <is-null-primitive>
+;;                       
 ;;
 ;;
 
