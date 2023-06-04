@@ -118,6 +118,9 @@
       ("begin" expression (arbno ";" expression) "end")
       begin-exp)
     (expression ("while" expr-bool "do" expression "done") while-exp)
+    (expression ("for" identifier "=" expression iterator expression "do" expression "done") for-exp)
+    (iterator ("to") to-iterator)
+    (iterator ("downto") downto-iterator)
 
     (primitive ("+")     add-prim)
     (primitive ("-")     subtract-prim)
@@ -245,6 +248,15 @@
           (if (eval-expr-bool condition env) 
             (loop condition (eval-expression expr env))
             1)))
+      (for-exp (i init iterator limit expr) 
+        (let ((lim (eval-expression limit env))
+              (ini (eval-expression init env))
+              (iter (apply-iterator iterator)))
+          (let loop ((val-i ini)
+                      (expr-e expr))
+            (if (eqv? val-i lim)
+              (eval-expression expr (extend-env (list i) (list val-i) env))
+              (loop (+ val-i iter) (eval-expression expr (extend-env (list i) (list val-i) env)))))))
 ;^;;;;;;;;;;;;;;; begin new cases for chap 5 ;;;;;;;;;;;;;;;;
       (new-object-exp (class-name rands)
         (let ((args (eval-rands rands env))
@@ -264,7 +276,15 @@
             method-name (apply-env env '%super) obj args)))
 ;^;;;;;;;;;;;;;;; end new cases for chap 5 ;;;;;;;;;;;;;;;;
       )))
-      
+
+(define apply-iterator
+  (lambda (it)
+    (cases iterator it
+      (to-iterator () 1)
+      (downto-iterator () -1)
+    )
+  )
+)      
 
 (define eval-rands
   (lambda (exps env)
