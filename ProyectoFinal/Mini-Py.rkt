@@ -13,9 +13,29 @@
 
 ;; La definición BNF para las expresiones del lenguaje:
 ;;
-;;[Insertar definición aquí]
+;;  <program>            ::= {<class-decl>}* <expression>
+;;                           <a-program (c-decls exp)>
+;;  <expression>         ::= <number>
+;;                           <lit-exp (datum)>
+;;                       ::= x <number> ({number}*)
+;;                           <bignum-exp (base numbers)>
+;;                       ::= "\""<texto>"\""
+;;                           <texto-lit (txt)>
 ;;
 ;;
+;;
+;;
+;;  <bool>               ::= "true"
+;;                           <true-bool>
+;;                       ::= "false"
+;;                           <false-bool>
+;;
+;;
+;;
+;;
+;;
+;;
+
 
 ;******************************************************************************************
 
