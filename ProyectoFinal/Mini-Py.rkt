@@ -29,8 +29,28 @@
 ;;                           <unary-primitive-exp (un-prim expr)
 ;;                       ::= <list-primitive (<identifier>,{<expression>}*(,))>
 ;;                           <list-primitive-exp (bin-prim list-id rands)>
+;;                       ::= <identifier>
+;;                           <var-exp (id)>
+;;                       ::= <primitive> ({<expression>}*(,))
+;;                           <primapp-exp (prim rands)>
+;;                       ::= if <expr-bool> then <expression> else <expression>
+;;                           <if-exp (test-exp true-exp false-exp)>
+;;                       ::= var {<identifier> = <expression>}* in <expression>
+;;                           <let-exp (ids rands body)>
+;;                       ::= const {<identifier> = <expression>}* in <expression>
+;;                           <const-exp (ids rands body)>
+;;                       ::= proc ({<identifier>}*(,))
+;;                           <proc-exp (ids body)>
+;;                       ::= (<expression> {<expression>}*)
+;;                           <app-exp (rator rands)>
+;;                       ::= rec {<identifier> ({<identifier}*(,)) = <expression>}* in <expression>
+;;                           <letrec-exp (proc-names idss bodies letrec-body)>
+;;                       ::= set <identifier> = <expression>
+;;                           <varassign-exp (id rhs-exp)>
+;;                       ::= begin <expression> 
 ;;
-;;  <bool>               ::= true
+;;
+;;  <bool>               ::= true+
 ;;                           <true-bool>
 ;;                       ::= false
 ;;                           <false-bool>
@@ -252,7 +272,7 @@
     (cases program pgm
       (a-program (c-decls exp)
         (elaborate-class-decls! c-decls) ;\new1
-        (eval-expression exp (empty-env))))))
+        (eval-expression exp (init-env))))))
 
 (define eval-expression
   (lambda (exp env)
@@ -501,7 +521,7 @@
 (define init-env 
   (lambda ()
     (extend-env
-      '(i v x)
+      '(@i @v @x)
       '(1 5 10)
       (empty-env))))
 
