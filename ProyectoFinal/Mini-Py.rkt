@@ -143,43 +143,71 @@
 ;;;;;;;;;;;;;;;; grammatical specification ;;;;;;;;;;;;;;;;
 
 (define the-lexical-spec
-  '((whitespace (whitespace) skip)
-    (comment ("%" (arbno (not #\newline))) skip)
+  '((whitespace (whitespace) skip)                                      ;Espacios en blanco
+    (comment ("%" (arbno (not #\newline))) skip)                        ;Comentarios
     (identifier
-      ("@" letter (arbno (or letter digit "_" "-" "?")))
+      ("@" letter (arbno (or letter digit "_" "-" "?")))                ;Identificadores
       symbol)
-    ; Numeros enteros y flotantes
-    (number (digit (arbno digit)) number)
-    (number ("-" digit (arbno digit)) number)
-    (number (digit (arbno digit) "." digit (arbno digit)) number)
-    (number ("-" digit (arbno digit) "." digit (arbno digit)) number)
-    ; Cadena
+    (number (digit (arbno digit)) number)                               ;Entero positivo
+    (number ("-" digit (arbno digit)) number)                           ;Entero negativo
+    (number (digit (arbno digit) "." digit (arbno digit)) number)       ;Decimal positivo
+    (number ("-" digit (arbno digit) "." digit (arbno digit)) number)   ;Decimal negativo
     (texto
-     ((or letter "-") (arbno (or letter digit "-" ":"))) string)
+     ((or letter "-") (arbno (or letter digit "-" ":"))) string)        ;Cadena de texto
   )
 )
 
 (define the-grammar
-  '((program ((arbno class-decl) expression) a-program)
-    ; Numeros Flotantes o Enteros
+  '(
+    ;Programa
+    (program ((arbno class-decl) expression) a-program)
+    
+    ;Número en base distinta a 10
+    (expression ("x" number "(" (arbno number) ")") bignum-exp)
+
+    ;Identificador
+    (expression (identifier) var-exp)
+
+    ;Definiciones
+    (expression
+      ("var" (arbno  identifier "=" expression) "in" expression)
+      let-exp)
+   (expression
+      ("const" (arbno  identifier "=" expression) "in" expression)
+      const-exp)
+   (expression                         
+      ("rec"
+        (arbno identifier "(" (separated-list identifier ",") ")"
+          "=" expression)
+        "in" expression)
+      letrec-exp)
+
+    ;Datos
     (expression (number) lit-exp)
-    ; Bignum
-    (expression ("x" number "(" (arbno number) ")") bignum-exp) ;LLeva un espacio luego de la x
-    ; Cadena
     (expression ("\""texto"\"") texto-lit)
-    ; Booleanos /////////////////////
     (bool ("true") true-bool)
     (bool ("false") false-bool)
 
+    ;Constructores de datos predefinidos
+        ;Listas
+    (expr-lista ("[" (separated-list expression ";") "]") simple-expr-lista)
+    (expression (expr-lista) expr-lista-exp)
+
+        ;Tuplas
+    (expr-tupla ("tupla[" (separated-list expression ";") "]") simple-expr-tupla)
+    (expression (expr-tupla) expr-tupla-exp)
+
+        ;---Poner registros aquí
+
+
+        ;Expresiones booleanas
     (expr-bool (bool) simple-expr-bool)
     (expr-bool (pred-prim "(" expression "," expression ")") pred-prim-expr-bool)
     (expr-bool (oper-bin-bool "(" expr-bool "," expr-bool ")") oper-bin-bool-expr-bool)
     (expr-bool (oper-un-bool "(" expr-bool ")") oper-un-bool-expr-bool)
+    (expression (expr-bool) bool-exp)
 
-    ; Operarations
-    (oper-un-bool ("not") negation-oper-un-bool)
-    (oper-bin-bool ("and") and-oper-bin-bool)
-    (oper-bin-bool ("or") or-oper-bin-bool)
+        ;pred-prim
     (pred-prim ("<") smaller-than-pred-prim)
     (pred-prim (">") greater-than-pred-prim)
     (pred-prim ("<=") less-equal-to-pred-prim)
@@ -187,72 +215,75 @@
     (pred-prim ("==") equal-to-pred-prim)
     (pred-prim ("<>") not-equal-to-pred-prim)
 
-    (expression (expr-bool) bool-exp)
-    ; ///////////////////////////////
+        ;oper-bin-bool
+    (oper-bin-bool ("and") and-oper-bin-bool)
+    (oper-bin-bool ("or") or-oper-bin-bool)
 
-    ; ///////////////////////////////
-    ; Listas
-    (expr-lista ("[" (separated-list expression ";") "]") simple-expr-lista)
-    (expression (expr-lista) expr-lista-exp)
-    ;Tuplas
-    (expr-tupla ("tupla[" (separated-list expression ";") "]") simple-expr-tupla)
-    (expression (expr-tupla) expr-tupla-exp)
+        ;oper-un-bool
+    (oper-un-bool ("not") negation-oper-un-bool)
 
-    ; Primitivas
+    ;Estructuras de control
+    (expression
+      ("begin" expression (arbno ";" expression) "end")
+      begin-exp)
+    (expression
+      ("if" expr-bool "then" expression "else" expression)
+      if-exp)
+    (expression ("while" expr-bool "do" expression "done") while-exp)
+    (expression ("for" identifier "=" expression iterator expression "do" expression "done") for-exp)
+
+        ;iterator
+    (iterator ("to") to-iterator)
+    (iterator ("downto") downto-iterator)
+
+    ;Primitivas aritméticas para enteros
+    (primitive ("+")     add-prim)
+    (primitive ("-")     subtract-prim)
+    (primitive ("*")     mult-prim)
+    (primitive ("add1")  incr-prim)
+    (primitive ("sub1")  decr-prim)
+    (expression
+      (primitive "(" (separated-list expression ",") ")")
+      primapp-exp)
+    (primitive ("zero?") zero-test-prim) ;Y esto de donde salió?
+
+    ;Primitivas aritméticas para hexadecimales
+    ;TO-DO
+
+    ;Primitivas sobre cadenas
+    ;TO-DO
+
+    ;Primitivas sobre listas
     (unary-primitive ("vacio?") is-null-primitive)
     (unary-primitive ("vacio") null-primitive)
+    ;TO-DO: Realizar el unary-primitive de "crear-lista"
     (unary-primitive ("lista?") is-lista-primitive)
     (unary-primitive ("cabeza") car-primitive)
     (unary-primitive ("cola") cdr-primitive)
     (list-primitive ("append") append-primitive)
     (list-primitive ("ref-list") ref-list-primitive)
     (list-primitive ("set-list") set-list-primitive)
-    ; ///////////////////////////////
     (expression (unary-primitive "(" expression ")") unary-primitive-exp)
     (expression (list-primitive "(" identifier "," (separated-list expression ",") ")") list-primitive-exp)
 
-    (expression (identifier) var-exp)   
-    (expression
-      (primitive "(" (separated-list expression ",") ")")
-      primapp-exp)
-    (expression
-      ("if" expr-bool "then" expression "else" expression)
-      if-exp)
-   (expression
-      ("var" (arbno  identifier "=" expression) "in" expression)
-      let-exp)
-   (expression
-      ("const" (arbno  identifier "=" expression) "in" expression)
-      const-exp) 
+    ;Primitivas sobre tuplas
+    ;TO-DO
+
+    ;Definición/Invocación de procedimientos
     (expression
       ("proc" "(" (separated-list identifier ",") ")" expression)
       proc-exp)
+
+    ;Definición/invocación de procedimientos recursivos
+    ;TO-DO
+
+    ;No sé que es esto y no lo borro por si acaso
     (expression
       ("(" expression (arbno expression) ")")
-      app-exp)
-    (expression                         
-      ("rec"
-        (arbno identifier "(" (separated-list identifier ",") ")"
-          "=" expression)
-        "in" expression)
-      letrec-exp)
-    (expression ("set" identifier "=" expression) varassign-exp)
-    (expression
-      ("begin" expression (arbno ";" expression) "end")
-      begin-exp)
-    (expression ("while" expr-bool "do" expression "done") while-exp)
-    (expression ("for" identifier "=" expression iterator expression "do" expression "done") for-exp)
-    (iterator ("to") to-iterator)
-    (iterator ("downto") downto-iterator)
+      app-exp) ;??????????????
 
-    (primitive ("+")     add-prim)
-    (primitive ("-")     subtract-prim)
-    (primitive ("*")     mult-prim)
-    (primitive ("add1")  incr-prim)
-    (primitive ("sub1")  decr-prim)
-    (primitive ("zero?") zero-test-prim)
 
-;^;;;;;;;;;;;;;;; new productions for oop ;;;;;;;;;;;;;;;;
+;^;;;;;;;;;;;;;;; POO ;;;;;;;;;;;;;;;;
 
     (class-decl                         
       ("class" identifier 
@@ -283,9 +314,9 @@
       ("super" identifier    "("  (separated-list expression ",") ")")
       super-call-exp)
 
-;^;;;;;;;;;;;;;;; end new productions for oop ;;;;;;;;;;;;;;;;
+        ))
+;;;;;;;;;;;;;;;;; POO FIN ;;;;;;;;;;;;;;;;
 
-    ))
 
 (sllgen:make-define-datatypes the-lexical-spec the-grammar)
 
@@ -456,7 +487,7 @@
 (define apply-unary-primitive
   (lambda (un-prim arg)
     (cases unary-primitive un-prim
-      (is-null-primitive () 
+      (is-null-primitive ()
         (cases lista arg
           (lista-vacia () #t)
           (else #f)
