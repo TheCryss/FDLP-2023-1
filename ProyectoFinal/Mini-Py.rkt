@@ -25,6 +25,10 @@
 ;;                           <bool-exp (exp-bool)>
 ;;                       ::= <expr-lista>
 ;;                           <expr-lista-exp (expr-lista)>
+
+;;                       ::= <expr-tupla>
+;;                           <expr-tupla-exp (expr-tupla)>
+
 ;;                       ::= <unary-primitive (<expression>)
 ;;                           <unary-primitive-exp (un-prim expr)
 ;;                       ::= <list-primitive (<identifier>,{<expression>}*(,))>
@@ -90,7 +94,12 @@
 ;;                           <not-equal-to-pred-prim>
 ;;
 ;;  <expr-lista>         ::= [{<expression>}*(;)]
-;;                           <simple-expr-lista (exps)
+;;                           <simple-expr-lista (exps)>
+
+;;  <expr-tupla>         ::= tupla[{<expression>}*(;)]
+;;                           <simple-expr-tupla (exps)
+
+
 ;;
 ;;  <unary-primitive>    ::= vacio?
 ;;                           <is-null-primitive>
@@ -185,6 +194,9 @@
     ; Listas
     (expr-lista ("[" (separated-list expression ";") "]") simple-expr-lista)
     (expression (expr-lista) expr-lista-exp)
+    ;Tuplas
+    (expr-tupla ("tupla[" (separated-list expression ";") "]") simple-expr-tupla)
+    (expression (expr-tupla) expr-tupla-exp)
 
     ; Primitivas
     (unary-primitive ("vacio?") is-null-primitive)
@@ -234,7 +246,7 @@
     (iterator ("downto") downto-iterator)
 
     (primitive ("+")     add-prim)
-    (primitive ("-")     substract-prim)
+    (primitive ("-")     subtract-prim)
     (primitive ("*")     mult-prim)
     (primitive ("add1")  incr-prim)
     (primitive ("sub1")  decr-prim)
@@ -299,39 +311,55 @@
   (lambda (exp env)
     (cases expression exp
       (mostrar-exp () the-class-env)
+      
       (lit-exp (datum) datum)
+      
       ; bignum
       (bignum-exp (base numbers) (eval-bignum-exp base numbers))
+      
       ; Cadena
       (texto-lit (txt) txt)
+      
       ; Booleano
       (bool-exp (exp-bool) (eval-expr-bool exp-bool env))
+      
       ; Lista
       (expr-lista-exp (expr-lista) (eval-expr-lista expr-lista env))
+
+      ; Tupla
+      (expr-tupla-exp (expr-tupla) (eval-expr-tupla expr-tupla env))
+      
       ; Primitivas unarias
       (unary-primitive-exp (un-prim expr) (apply-unary-primitive 
                                                 un-prim 
                                                 (eval-expression expr env)))
+      
       (list-primitive-exp (bin-prim list-id rands) (apply-list-primitive
                                                 bin-prim
                                                 (apply-env-ref env list-id)
                                                 (eval-rands rands env)))
       (var-exp (id) (apply-env env id))
+      
       (primapp-exp (prim rands)
         (let ((args (eval-rands rands env)))
           (apply-primitive prim args)))
+      
       (if-exp (test-exp true-exp false-exp)
         (if (eval-expr-bool test-exp env)
           (eval-expression true-exp env)
           (eval-expression false-exp env)))
+      
       (let-exp (ids rands body)
         (let ((args (eval-rands rands env)))
           (eval-expression body (extend-env ids args env))))
+      
       (const-exp (ids rands body)
         (let ((args (eval-rands rands env)))
           (eval-expression body (extend-env-constant ids args env))))
+      
       (proc-exp (ids body)
         (closure ids body env))
+      
       (app-exp (rator rands)
         (let ((proc (eval-expression rator env))
               (args (eval-rands      rands env)))
@@ -339,9 +367,11 @@
             (apply-procval proc args)
             (eopl:error 'eval-expression 
               "Attempt to apply non-procedure ~s" proc))))
+      
       (letrec-exp (proc-names idss bodies letrec-body)
         (eval-expression letrec-body
           (extend-env-recursively proc-names idss bodies env)))
+      
       (varassign-exp (id rhs-exp)
         (setref!
           (apply-env-ref env id)
@@ -353,12 +383,14 @@
                    (exps exps))
           (if (null? exps) acc
             (loop (eval-expression (car exps) env) (cdr exps)))))
+      
       (while-exp (expr-b expr) 
         (let loop ((condition expr-b)
                     (expr-e expr))
           (if (eval-expr-bool condition env) 
             (loop condition (eval-expression expr env))
             1)))
+      
       (for-exp (i init iterator limit expr) 
         (let ((lim (eval-expression limit env))
               (ini (eval-expression init env))
@@ -368,6 +400,7 @@
             (if (eqv? val-i lim)
               (eval-expression expr (extend-env (list i) (list val-i) env))
               (loop (+ val-i iter) (eval-expression expr (extend-env (list i) (list val-i) env)))))))
+      
 ;^;;;;;;;;;;;;;;; begin new cases for chap 5 ;;;;;;;;;;;;;;;;
       (new-object-exp (class-name rands)
         (let ((args (eval-rands rands env))
@@ -525,6 +558,13 @@
   )
 )
 
+(define-datatype tupla tupla?
+  (tupla-vacia)
+  (tupla-extendida
+   (vals vector?)
+   )
+  )
+
 (define eval-expr-lista
   (lambda (expr-l env)
     (cases expr-lista expr-l
@@ -538,6 +578,17 @@
   )
 )
 
+(define eval-expr-tupla
+  (lambda (expr-t env)
+    (cases expr-tupla expr-t ;En caso de que expr-t sea una expr-tupla
+      (simple-expr-tupla (exps)
+                         (let ((vals (eval-rands exps env)))
+                           (if (null? vals)
+                             (tupla-vacia)
+                             (tupla-extendida (list->vector vals)))))
+      )
+    )
+  )
 
 (define init-env 
   (lambda ()
