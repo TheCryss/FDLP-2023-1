@@ -29,8 +29,8 @@
 ;;                       ::= <expr-tupla>
 ;;                           <expr-tupla-exp (expr-tupla)>
 
-;;                       ::= <unary-primitive (<expression>)
-;;                           <unary-primitive-exp (un-prim expr)
+;;                       ::= <unary-primitive-list (<expression>)
+;;                           <unary-primitive-list-exp (un-prim expr)
 ;;                       ::= <list-primitive (<identifier>,{<expression>}*(,))>
 ;;                           <list-primitive-exp (bin-prim list-id rands)>
 ;;                       ::= <identifier>
@@ -101,22 +101,22 @@
 
 
 ;;
-;;  <unary-primitive>    ::= vacio?
-;;                           <is-null-primitive>
-;;                       ::= vacio
-;;                           <null-primitive>
-;;                       ::= lista?
-;;                           <is-lista-primitive>
-;;                       ::= cabeza
-;;                           <car-primitive>
-;;                       ::= cola
-;;                           <cdr-primitive>
-;;                       ::= append
-;;                           <append-primitive>
-;;                       ::= ref-list
-;;                           <ref-list-primitive>
-;;                       ::= set-list
-;;                           <set-list-primitive>
+;;  <unary-primitive-list> ::=vacio?
+;;                            <is-null-primitive>
+;;                        ::= vacio
+;;                            <null-primitive>
+;;                        ::= lista?
+;;                            <is-lista-primitive>
+;;                        ::= cabeza
+;;                            <car-primitive>
+;;                        ::= cola
+;;                            <cdr-primitive>
+;;                        ::= append
+;;                            <append-primitive>
+;;                        ::= ref-list
+;;                            <ref-list-primitive>
+;;                        ::= set-list
+;;                            <set-list-primitive>
 ;;
 ;;  <iterator>           ::= to
 ;;                           <to-iterator>
@@ -254,16 +254,16 @@
     ;TO-DO
 
     ;Primitivas sobre listas
-    (unary-primitive ("vacio?") is-null-primitive)
-    (unary-primitive ("vacio") null-primitive)
-    ;TO-DO: Realizar el unary-primitive de "crear-lista"
-    (unary-primitive ("lista?") is-lista-primitive)
-    (unary-primitive ("cabeza") car-primitive)
-    (unary-primitive ("cola") cdr-primitive)
+    (unary-primitive-list ("vacio?") is-null-primitive)
+    (unary-primitive-list ("vacio") null-primitive)
+    ;TO-DO: Realizar el unary-primitive-list de "crear-lista"
+    (unary-primitive-list ("lista?") is-lista-primitive)
+    (unary-primitive-list ("cabeza") car-primitive)
+    (unary-primitive-list ("cola") cdr-primitive)
     (list-primitive ("append") append-primitive)
     (list-primitive ("ref-list") ref-list-primitive)
     (list-primitive ("set-list") set-list-primitive)
-    (expression (unary-primitive "(" expression ")") unary-primitive-exp)
+    (expression (unary-primitive-list "(" expression ")") unary-primitive-list-exp)
     (expression (list-primitive "(" identifier "," (separated-list expression ",") ")") list-primitive-exp)
 
     ;Primitivas sobre tuplas
@@ -277,10 +277,16 @@
     ;Definición/invocación de procedimientos recursivos
     ;TO-DO
 
-    ;No sé que es esto y no lo borro por si acaso
+    ;Variables actualizables (mutables)
+    (expression ("set" identifier "=" expression) varassign-exp)
+
+    ;Secuenciación
     (expression
       ("(" expression (arbno expression) ")")
       app-exp) ;??????????????
+
+    ;Iteración
+    ;TO-DO
 
 
 ;^;;;;;;;;;;;;;;; POO ;;;;;;;;;;;;;;;;
@@ -361,7 +367,7 @@
       (expr-tupla-exp (expr-tupla) (eval-expr-tupla expr-tupla env))
       
       ; Primitivas unarias
-      (unary-primitive-exp (un-prim expr) (apply-unary-primitive 
+      (unary-primitive-list-exp (un-prim expr) (apply-unary-primitive-list 
                                                 un-prim 
                                                 (eval-expression expr env)))
       
@@ -484,9 +490,9 @@
       ;(null?-prim () (if (null? (car args)) 1 0))
       )))
 
-(define apply-unary-primitive
+(define apply-unary-primitive-list
   (lambda (un-prim arg)
-    (cases unary-primitive un-prim
+    (cases unary-primitive-list un-prim
       (is-null-primitive ()
         (cases lista arg
           (lista-vacia () #t)
@@ -497,14 +503,14 @@
       (is-lista-primitive () (lista? arg))
       (car-primitive () 
         (cases lista arg
-          (lista-vacia () (eopl:error 'apply-unary-primitive
+          (lista-vacia () (eopl:error 'apply-unary-primitive-list
                             "List index out of range"))
           (lista-extendida (vals) (vector-ref vals 0))
         )
       )
       (cdr-primitive () 
         (cases lista arg
-          (lista-vacia () (eopl:error 'apply-unary-primitive
+          (lista-vacia () (eopl:error 'apply-unary-primitive-list
                             "List index out of range"))
           (lista-extendida (vals) 
             (letrec ((vals-l (vector->list vals))
