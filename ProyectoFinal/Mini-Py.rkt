@@ -254,12 +254,12 @@
     ;TO-DO
 
     ;Primitivas sobre listas
-    (unary-primitive-list ("vacio?") is-null-primitive)
-    (unary-primitive-list ("vacio") null-primitive)
+    (unary-primitive-list ("vacio?") is-null-primitive-list)
+    (unary-primitive-list ("vacio") null-primitive-list)
     ;TO-DO: Realizar el unary-primitive-list de "crear-lista"
     (unary-primitive-list ("lista?") is-lista-primitive)
-    (unary-primitive-list ("cabeza") car-primitive)
-    (unary-primitive-list ("cola") cdr-primitive)
+    (unary-primitive-list ("cabeza") car-primitive-list)
+    (unary-primitive-list ("cola") cdr-primitive-list)
     (list-primitive ("append") append-primitive)
     (list-primitive ("ref-list") ref-list-primitive)
     (list-primitive ("set-list") set-list-primitive)
@@ -267,7 +267,16 @@
     (expression (list-primitive "(" identifier "," (separated-list expression ",") ")") list-primitive-exp)
 
     ;Primitivas sobre tuplas
-    ;TO-DO
+    (unary-primitive-tuple ("vacio-tupla?") is-null-primitive-tuple)
+    (unary-primitive-tuple ("vacio-tupla") null-primitive-tuple)
+    ;TO-DO: Realizar el unary-primitive-tuple de "crear-tupla"
+    (unary-primitive-tuple ("tupla?") is-tuple-primitive)
+    (unary-primitive-tuple ("cabeza-tupla") car-primitive-tuple)
+    (unary-primitive-tuple ("cola-tupla") cdr-primitive-tuple)
+    (tuple-primitive ("ref-tuple") ref-tuple-primitive)
+    (expression (unary-primitive-tuple "(" expression ")") unary-primitive-tuple-exp)
+    (expression (tuple-primitive "(" identifier "," (separated-list expression ",") ")") tuple-primitive-exp)
+    
 
     ;Definición/Invocación de procedimientos
     (expression
@@ -375,6 +384,16 @@
                                                 bin-prim
                                                 (apply-env-ref env list-id)
                                                 (eval-rands rands env)))
+
+      (unary-primitive-tuple-exp (un-prim expr) (apply-unary-primitive-tuple
+                                                un-prim 
+                                                (eval-expression expr env)))
+
+      (tuple-primitive-exp (bin-prim list-id rands) (apply-tuple-primitive
+                                                bin-prim
+                                                (apply-env-ref env list-id)
+                                                (eval-rands rands env)))
+      
       (var-exp (id) (apply-env env id))
       
       (primapp-exp (prim rands)
@@ -493,22 +512,26 @@
 (define apply-unary-primitive-list
   (lambda (un-prim arg)
     (cases unary-primitive-list un-prim
-      (is-null-primitive ()
+      (is-null-primitive-list ()
         (cases lista arg
           (lista-vacia () #t)
           (else #f)
         )
       )
-      (null-primitive () lista-vacia)
+      
+      (null-primitive-list () lista-vacia)
+      
       (is-lista-primitive () (lista? arg))
-      (car-primitive () 
+      
+      (car-primitive-list () 
         (cases lista arg
           (lista-vacia () (eopl:error 'apply-unary-primitive-list
                             "List index out of range"))
           (lista-extendida (vals) (vector-ref vals 0))
         )
       )
-      (cdr-primitive () 
+      
+      (cdr-primitive-list () 
         (cases lista arg
           (lista-vacia () (eopl:error 'apply-unary-primitive-list
                             "List index out of range"))
@@ -556,6 +579,62 @@
       ))
   )
 )
+
+(define apply-unary-primitive-tuple
+  (lambda (un-prim arg)
+    (cases unary-primitive-tuple un-prim
+      (is-null-primitive-tuple ()
+                               (cases tupla arg
+                                 (tupla-vacia () #t)
+                                 (else #f))
+                               )
+      
+      (null-primitive-tuple () tupla-vacia)
+      
+      (is-tuple-primitive () (tupla? arg))
+      
+      (car-primitive-tuple () 
+                           (cases tupla arg
+          (tupla-vacia () (eopl:error 'apply-unary-primitive-tuple
+                                      "Tuple index out of range"))
+          (tupla-extendida (vals) (vector-ref vals 0))
+          )
+        )
+      
+      (cdr-primitive-tuple () 
+                           (cases tupla arg
+          (tupla-vacia () (eopl:error 'apply-unary-primitive-tuple
+                                      "Tuple index out of range"))
+          (tupla-extendida (vals) 
+                           (letrec ((vals-l (vector->list vals))
+                     (cdr-vals-l (cdr vals-l)))
+              (if (null? cdr-vals-l)
+                  tupla-vacia
+                (tupla-extendida (list->vector cdr-vals-l)))))
+          )
+        )
+      )
+    )
+  )
+
+(define apply-tuple-primitive
+  (lambda (t-prim tuple-ref rands)
+    (lambda (t-prim tuple-ref rands)
+      (let ((t (deref tuple-ref))
+          (val (car rands))
+          (pos (cadr rands)))
+      
+      (cases tuple-primitive t-prim
+        (ref-tuple-primitive () 
+                             (cases tupla t
+            (tupla-vacia () (eopl:error 'apply-list-primitive
+                                        "Tuple index out of range"))
+            (tupla-extendida (vals) (vector-ref vals val))
+            )
+          ))
+      )))
+  )
+
 
 (define eval-bignum-exp
   (lambda (base numbers)
