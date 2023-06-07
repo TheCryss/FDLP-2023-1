@@ -199,7 +199,7 @@
     (expression (expr-tupla) expr-tupla-exp)
 
         ;Registros
-    (expr-registro ("{" (separated-list identifier "=" expression ";") "}") simple-expr-registro)
+    (expr-registro ("{" identifier "=" expression (arbno ";" identifier "=" expression) "}") simple-expr-registro)
     (expression (expr-registro) expr-registro-exp)
 
     ;(expr-registro ("{" identifier "=" expression ";}"))
@@ -725,9 +725,10 @@
 (define eval-expr-registro
   (lambda (expr-r env)
     (cases expr-registro expr-r
-      (simple-expr-registro (ids args)
-                            (let ((vals (eval-rands args env)))
-                              (registro-extendido (list->vector ids) (list->vector vals))))
+      (simple-expr-registro (id1 arg1 ids args)
+                            (let ((vals (eval-rands args env))
+                                  (val (eval-rands (list arg1) env)))
+                              (registro-extendido (list->vector (append (list id1) ids)) (list->vector (append val vals)))))
       )
     ))
 
