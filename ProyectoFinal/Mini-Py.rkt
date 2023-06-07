@@ -199,8 +199,12 @@
     (expression (expr-tupla) expr-tupla-exp)
 
         ;Registros
-    (expr-registro ("{" identifier "=" expression ";" (separated-list (identifier "=" expression) ";") "}"))
+    (expr-registro ("{" (separated-list identifier "=" expression ";") "}") simple-expr-registro)
     (expression (expr-registro) expr-registro-exp)
+
+    ;(expr-registro ("{" identifier "=" expression ";}"))
+    ;(expr-registro ("{" identifier "=" expression ";"  (separated-list (identifier "=" expression) ";") "}"))
+    ;(expression (expr-registro) expr-registro-exp)
 
 
         ;Expresiones booleanas
@@ -377,6 +381,9 @@
 
       ; Tupla
       (expr-tupla-exp (expr-tupla) (eval-expr-tupla expr-tupla env))
+
+      ;Registro
+      (expr-registro-exp (expr-registro) (eval-expr-registro expr-registro env))
       
       ; Primitivas unarias
       (unary-primitive-list-exp (un-prim expr) (apply-unary-primitive-list 
@@ -718,7 +725,9 @@
 (define eval-expr-registro
   (lambda (expr-r env)
     (cases expr-registro expr-r
-      simple-expr-registro (exps)
+      (simple-expr-registro (ids args)
+                            (let ((vals (eval-rands args env)))
+                              (registro-extendido (list->vector ids) (list->vector vals))))
       )
     ))
 
