@@ -95,11 +95,12 @@
 ;;
 ;;  <expr-lista>         ::= [{<expression>}*(;)]
 ;;                           <simple-expr-lista (exps)>
-
+;;
 ;;  <expr-tupla>         ::= tupla[{<expression>}*(;)]
 ;;                           <simple-expr-tupla (exps)
-
-
+;;
+;;  <expr-registro>      ::= {<identificador> = <expresion>}+(;)
+;;                           <simple-expr-tupla (ids exps)>
 ;;
 ;;  <unary-primitive-list> ::=vacio?
 ;;                            <is-null-primitive>
@@ -197,7 +198,9 @@
     (expr-tupla ("tupla[" (separated-list expression ";") "]") simple-expr-tupla)
     (expression (expr-tupla) expr-tupla-exp)
 
-        ;---Poner registros aquí
+        ;Registros
+    (expr-registro ("{" identifier "=" expression ";" (separated-list (identifier "=" expression) ";") "}"))
+    (expression (expr-registro) expr-registro-exp)
 
 
         ;Expresiones booleanas
@@ -681,6 +684,12 @@
    )
   )
 
+(define-datatype registro registro?
+  (registro-extendido (keys vector?) (vals vector?)))
+
+;(expr-registro ("{" identifier "=" expression ";" (separated-list (identifier "=" expression) ";") "}"))
+;(expression (expr-registro) expr-registro-exp)
+
 (define eval-expr-lista
   (lambda (expr-l env)
     (cases expr-lista expr-l
@@ -705,6 +714,13 @@
       )
     )
   )
+
+(define eval-expr-registro
+  (lambda (expr-r env)
+    (cases expr-registro expr-r
+      simple-expr-registro (exps)
+      )
+    ))
 
 (define init-env 
   (lambda ()
