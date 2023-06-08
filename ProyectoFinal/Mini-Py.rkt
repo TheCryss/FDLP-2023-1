@@ -260,7 +260,7 @@
     ;Primitivas sobre listas
     (unary-primitive-list ("vacio?") is-null-primitive-list)
     (unary-primitive-list ("vacio") null-primitive-list)
-    ;TO-DO: Realizar el unary-primitive-list de "crear-lista"
+    (expression ("crear-lista" "(" expr-lista ")") expr-lista-exp)
     (unary-primitive-list ("lista?") is-lista-primitive)
     (unary-primitive-list ("cabeza") car-primitive-list)
     (unary-primitive-list ("cola") cdr-primitive-list)
@@ -273,7 +273,7 @@
     ;Primitivas sobre tuplas
     (unary-primitive-tuple ("vacio-tupla?") is-null-primitive-tuple)
     (unary-primitive-tuple ("vacio-tupla") null-primitive-tuple)
-    ;TO-DO: Realizar el unary-primitive-tuple de "crear-tupla"
+    (expression ("crear-tupla" "(" expr-tupla ")") expr-tupla-exp)
     (unary-primitive-tuple ("tupla?") is-tuple-primitive)
     (unary-primitive-tuple ("cabeza-tupla") car-primitive-tuple)
     (unary-primitive-tuple ("cola-tupla") cdr-primitive-tuple)
@@ -283,7 +283,7 @@
 
     ;Primitivas sobre registros
     (unary-primitive-register ("registro?") is-register-primitive)
-    ;TO-DO: Realizr el unary-primitive-register de "crear-registro"
+    (expression ("crear-registro" "(" expr-registro ")") expr-registro-exp)
     (register-primitive ("ref-registro") ref-register-primitive)
     (register-primitive ("set-registro") set-register-primitive)
     (expression (unary-primitive-register "(" expression ")") unary-primitive-register-exp)
