@@ -25,9 +25,11 @@
 ;;                           <bool-exp (exp-bool)>
 ;;                       ::= <expr-lista>
 ;;                           <expr-lista-exp (expr-lista)>
-
 ;;                       ::= <expr-tupla>
 ;;                           <expr-tupla-exp (expr-tupla)>
+
+;;                       ::= <expr-registro>
+;;                           <expr-registro-exp (expr-registro)>
 
 ;;                       ::= <unary-primitive-list (<expression>)
 ;;                           <unary-primitive-list-exp (un-prim expr)
@@ -99,7 +101,7 @@
 ;;  <expr-tupla>         ::= tupla[{<expression>}*(;)]
 ;;                           <simple-expr-tupla (exps)
 ;;
-;;  <expr-registro>      ::= {<identificador> = <expresion>}+(;)
+;;  <expr-registro>      ::= {<texto> = <expresion>}+(;)
 ;;                           <simple-expr-tupla (ids exps)>
 ;;
 ;;  <unary-primitive-list> ::=vacio?
@@ -199,13 +201,8 @@
     (expression (expr-tupla) expr-tupla-exp)
 
         ;Registros
-    (expr-registro ("{" identifier "=" expression (arbno ";" identifier "=" expression) "}") simple-expr-registro)
+    (expr-registro ("{" texto "=" expression (arbno ";" texto "=" expression) "}") simple-expr-registro)
     (expression (expr-registro) expr-registro-exp)
-
-    ;(expr-registro ("{" identifier "=" expression ";}"))
-    ;(expr-registro ("{" identifier "=" expression ";"  (separated-list (identifier "=" expression) ";") "}"))
-    ;(expression (expr-registro) expr-registro-exp)
-
 
         ;Expresiones booleanas
     (expr-bool (bool) simple-expr-bool)
@@ -283,6 +280,15 @@
     (tuple-primitive ("ref-tuple") ref-tuple-primitive)
     (expression (unary-primitive-tuple "(" expression ")") unary-primitive-tuple-exp)
     (expression (tuple-primitive "(" identifier "," (separated-list expression ",") ")") tuple-primitive-exp)
+
+    ;Primitivas sobre registros
+    (unary-primitive-register ("registro?") is-register-primitive)
+    ;TO-DO: Realizr el unary-primitive-register de "crear-registro"
+    (register-primitive ("ref-registro") ref-register-primitive)
+    ;(register-primitive ("set-registro") set-register-primitive)
+    (expression (unary-primitive-register "(" expression ")") unary-primitive-register-exp)
+    (expression (register-primitive "(" identifier "," (separated-list expression ",") ")") register-primitive-exp)
+    
     
 
     ;Definición/Invocación de procedimientos
@@ -403,6 +409,15 @@
                                                 bin-prim
                                                 (apply-env-ref env list-id)
                                                 (eval-rands rands env)))
+
+      (unary-primitive-register-exp (un-prim expr) (apply-unary-primitive-register
+                                                    un-prim
+                                                    (eval-expression expr env)))
+
+      (register-primitive-exp (bin-prim list-id rands) (apply-register-primitive
+                                                        bin-prim
+                                                        (apply-env-ref env list-id)
+                                                        (eval-rands rands env)))
       
       (var-exp (id) (apply-env env id))
       
@@ -572,7 +587,7 @@
                                               (lista-extendida (list->vector new-vals))))
                   )))
             (setref! list-ref new-list)))
-        (ref-list-primitive () 
+        (ref-list-primitive ()
           (cases lista l
             (lista-vacia () (eopl:error 'apply-list-primitive
                             "List index out of range"))
@@ -631,8 +646,7 @@
   (lambda (t-prim tuple-ref rands)
     (lambda (t-prim tuple-ref rands)
       (let ((t (deref tuple-ref))
-          (val (car rands))
-          (pos (cadr rands)))
+          (val (car rands)))
       
       (cases tuple-primitive t-prim
         (ref-tuple-primitive () 
@@ -644,6 +658,27 @@
           ))
       )))
   )
+
+(define apply-unary-primitive-register
+  (lambda (un-prim arg)
+    (cases unary-primitive-register un-prim
+      (is-register-primitive () (registro? arg)))))
+
+(define apply-register-primitive
+  (lambda (r-prim register-ref rands)
+    (let ((r (deref register-ref))
+          (id (car rands))
+          (val (cadr rands)))
+      (cases register-primitive r-prim
+        (ref-register-primitive ()
+                                (cases registro r
+                                  (registro-extendido (ids vals) (vector-ref vals (find-index ids id 0))))))
+      )))
+
+;Función auxiliar de apply-register-primitive
+(define find-index
+  (lambda (vals id index)
+    (if (equal? (vector-ref vals index) id) index (find-index vals id (+ index 1)))))
 
 
 (define eval-bignum-exp
@@ -728,7 +763,23 @@
       (simple-expr-registro (id1 arg1 ids args)
                             (let ((vals (eval-rands args env))
                                   (val (eval-rands (list arg1) env)))
-                              (registro-extendido (list->vector (append (list id1) ids)) (list->vector (append val vals)))))
+                              
+                              (define is-not-repeated?
+                                (lambda (l1 l2)
+                                  (if (null? l1) #t (if (check-not-repeated (car l1) (cdr l2)) (is-not-repeated? (cdr l1) (cdr l2)) #f))
+                                  )) ;Función auxiliar para evaluar que no hayan elementos repetidos
+
+                              (define check-not-repeated
+                                (lambda (element l)
+                                  (if (null? l) #t (if (equal? element (car l)) #f (check-not-repeated element (cdr l)))))) ;Función auxiliar para evaluar que no este repetido
+                              ;Un solo elemento
+
+                              (if (is-not-repeated? (append (list id1) ids) (append (list id1) ids))
+                                  (registro-extendido (list->vector (append (list id1) ids)) (list->vector (append val vals)))
+                                  (eopl:error 'eval-expr-registro
+                                        "Repeated keys inside the register"))
+                              
+                              ))
       )
     ))
 
