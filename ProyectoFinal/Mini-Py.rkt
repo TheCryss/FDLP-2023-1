@@ -255,7 +255,8 @@
     ;TO-DO
 
     ;Primitivas sobre cadenas
-    ;TO-DO
+    (primitive ("longitud") longitud-prim)
+    (primitive ("concat") concat-prim)
 
     ;Primitivas sobre listas
     (unary-primitive-list ("vacio?") is-null-primitive-list)
@@ -526,6 +527,8 @@
       (incr-prim  () (+ (car args) 1))
       (decr-prim  () (- (car args) 1))
       (zero-test-prim () (if (zero? (car args)) 1 0))
+      (concat-prim () (string-append (car args) (cadr args)))
+      (longitud-prim () (string-length (car args)))
       ;(list-prim () args)               ;already a list
       ;(nil-prim () '())
       ;(car-prim () (car (car args)))
