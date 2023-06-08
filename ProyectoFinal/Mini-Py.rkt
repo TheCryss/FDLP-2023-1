@@ -285,7 +285,7 @@
     (unary-primitive-register ("registro?") is-register-primitive)
     ;TO-DO: Realizr el unary-primitive-register de "crear-registro"
     (register-primitive ("ref-registro") ref-register-primitive)
-    ;(register-primitive ("set-registro") set-register-primitive)
+    (register-primitive ("set-registro") set-register-primitive)
     (expression (unary-primitive-register "(" expression ")") unary-primitive-register-exp)
     (expression (register-primitive "(" identifier "," (separated-list expression ",") ")") register-primitive-exp)
     
@@ -667,12 +667,14 @@
 (define apply-register-primitive
   (lambda (r-prim register-ref rands)
     (let ((r (deref register-ref))
-          (id (car rands))
-          (val (cadr rands)))
+          (id (car rands)))
       (cases register-primitive r-prim
         (ref-register-primitive ()
                                 (cases registro r
-                                  (registro-extendido (ids vals) (vector-ref vals (find-index ids id 0))))))
+                                  (registro-extendido (ids vals) (vector-ref vals (find-index ids id 0)))))
+        (set-register-primitive ()
+                                (cases registro r
+                                  (registro-extendido (ids vals) (vector-set! vals (find-index ids id 0) (cadr rands))))))
       )))
 
 ;Función auxiliar de apply-register-primitive
