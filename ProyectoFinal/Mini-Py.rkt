@@ -575,8 +575,7 @@
 (define apply-list-primitive
   (lambda (l-prim list-ref rands)
     (let ((l (deref list-ref))
-          (val (car rands))
-          (pos (cadr rands)))
+          (val (car rands)))
       (cases list-primitive l-prim
         (append-primitive () 
           (let ((new-list 
@@ -598,7 +597,7 @@
           (cases lista l
                     (lista-vacia () (eopl:error 'apply-list-primitive
                             "List index out of range"))
-                    (lista-extendida (vals) (vector-set! vals pos val))
+                    (lista-extendida (vals) (vector-set! vals (cadr rands) val))
                   )
         )
       ))
@@ -644,19 +643,18 @@
 
 (define apply-tuple-primitive
   (lambda (t-prim tuple-ref rands)
-    (lambda (t-prim tuple-ref rands)
-      (let ((t (deref tuple-ref))
+    (let ((t (deref tuple-ref))
           (val (car rands)))
       
       (cases tuple-primitive t-prim
         (ref-tuple-primitive () 
                              (cases tupla t
-            (tupla-vacia () (eopl:error 'apply-list-primitive
-                                        "Tuple index out of range"))
-            (tupla-extendida (vals) (vector-ref vals val))
-            )
-          ))
-      )))
+                               (tupla-vacia () (eopl:error 'apply-list-primitive
+                                                           "Tuple index out of range"))
+                               (tupla-extendida (vals) (vector-ref vals val))
+                               )
+                             ))
+      ))
   )
 
 (define apply-unary-primitive-register
