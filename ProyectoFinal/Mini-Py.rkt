@@ -156,7 +156,7 @@
     (number (digit (arbno digit) "." digit (arbno digit)) number)       ;Decimal positivo
     (number ("-" digit (arbno digit) "." digit (arbno digit)) number)   ;Decimal negativo
     (texto
-     ((or letter "-") (arbno (or letter digit "-" ":"))) string)        ;Cadena de texto
+     ((or letter) (arbno (or letter digit ":"))) string)        ;Cadena de texto
   )
 )
 
@@ -165,8 +165,10 @@
     ;Programa
     (program ((arbno class-decl) expression) a-program)
     
-    ;Número en base distinta a 10
-    (expression ("x" number "(" (arbno number) ")") bignum-exp)
+    ;Número en base distinta a 10 (Bignum) (Base en 16)
+    ;(expression ("x" number "(" (arbno number) ")") bignum-exp)
+    (expr-bignum ("x16" "(" (separated-list number ",") ")") simple-expr-bignum)
+    (expression (expr-bignum) expr-bignum-exp)
 
     ;Identificador
     (expression (identifier) var-exp)
@@ -375,7 +377,7 @@
       (lit-exp (datum) datum)
       
       ; bignum
-      (bignum-exp (base numbers) (eval-bignum-exp base numbers))
+      (expr-bignum-exp (expr-bignum) (eval-expr-bignum expr-bignum env))
       
       ; Cadena
       (texto-lit (txt) txt)
@@ -715,6 +717,9 @@
   )
 )
 
+(define-datatype bignum bignum?
+  (bignum-extendido (numbers vector?)))
+
 (define-datatype lista lista?
   (lista-vacia)
   (lista-extendida
@@ -732,8 +737,21 @@
 (define-datatype registro registro?
   (registro-extendido (keys vector?) (vals vector?)))
 
-;(expr-registro ("{" identifier "=" expression ";" (separated-list (identifier "=" expression) ";") "}"))
-;(expression (expr-registro) expr-registro-exp)
+(define eval-expr-bignum
+  (lambda (expr-b env)
+    (cases expr-bignum expr-b
+      (simple-expr-bignum (exps)
+
+                          ;Funciones auxiliares para que no se introduzcan valores mayores 16
+                          (define is-not-greater-than-sixteen?
+                            (lambda (vals)
+                              (if (null? vals) #t (if (or (> (car vals) 15) (< (car vals) 0)) #f (is-not-greater-than-sixteen? (cdr vals))))))
+                          
+                          (let ((vals exps))
+                            (if (is-not-greater-than-sixteen? vals)
+                                (bignum-extendido (list->vector vals))
+                                (eopl:error 'eval-expr-bignum "No puede existir un valor mayor a 15 dentro de los valores")))
+                          ))))
 
 (define eval-expr-lista
   (lambda (expr-l env)
