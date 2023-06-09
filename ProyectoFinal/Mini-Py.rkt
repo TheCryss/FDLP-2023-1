@@ -175,7 +175,9 @@
 
     ;Definiciones
     (expression
+
       ("var" (arbno  identifier "=" expression) "in" expression)
+
       let-exp)
    (expression
       ("const" (arbno  identifier "=" expression) "in" expression)
@@ -229,6 +231,7 @@
     (oper-un-bool ("not") negation-oper-un-bool)
 
     ;Estructuras de control
+
     (expression
       ("begin" expression (arbno ";" expression) "end")
       begin-exp)
@@ -245,9 +248,11 @@
     ;Primitivas aritméticas para enteros
     (primitive ("+")     add-prim)
     (primitive ("-")     subtract-prim)
+    
     (primitive ("*")     mult-prim)
     (primitive ("add1")  incr-prim)
     (primitive ("sub1")  decr-prim)
+
     (expression
       (primitive "(" (separated-list expression ",") ")")
       primapp-exp)
@@ -302,6 +307,7 @@
     ;Definición/invocación de procedimientos recursivos
     ;TO-DO
 
+
     ;Variables actualizables (mutables)
     (expression ("set" identifier "=" expression) varassign-exp)
 
@@ -316,20 +322,23 @@
 
 ;^;;;;;;;;;;;;;;; POO ;;;;;;;;;;;;;;;;
 
+    
     (class-decl                         
       ("class" identifier 
         "extends" identifier                   
-         (arbno "field" identifier)
-         (arbno method-decl)
-         )
-      a-class-decl)
+          (arbno "field" identifier)
+          (arbno method-decl)
+      )
+    a-class-decl)
+
 
     (method-decl
-      ("method" identifier 
+      ("def" identifier 
         "("  (separated-list identifier ",") ")" ; method ids
         expression 
         )
       a-method-decl)
+    
     (expression ("mostrar") mostrar-exp)
 
     (expression 
@@ -464,7 +473,7 @@
 ;&
       (begin-exp (exp1 exps)
         (let loop ((acc (eval-expression exp1 env))
-                   (exps exps))
+                    (exps exps))
           (if (null? exps) acc
             (loop (eval-expression (car exps) env) (cdr exps)))))
       
@@ -490,13 +499,17 @@
         (let ((args (eval-rands rands env))
               (obj (new-object class-name)))
           (find-method-and-apply
-            'initialize class-name obj args)
+            'init class-name obj args)
+          (find-method-and-apply
+            'str class-name obj args) 
           obj))
+      
       (method-app-exp (obj-exp method-name rands)
         (let ((args (eval-rands rands env))
               (obj (eval-expression obj-exp env)))
           (find-method-and-apply
             method-name (object->class-name obj) obj args)))
+      
       (super-call-exp (method-name rands)
         (let ((args (eval-rands rands env))
               (obj (apply-env env 'self)))
@@ -1118,7 +1131,7 @@
   (lambda (m-name host-name self args)
     (if (eqv? host-name 'object)
       (eopl:error 'find-method-and-apply
-        "No method for name ~s" m-name)
+        "No method for name ~s" m-name) 
       (let ((m-decl (lookup-method-decl m-name
                       (class-name->method-decls host-name))))
         (if (method-decl? m-decl)
@@ -1247,4 +1260,3 @@
 
 ;;;; class c1 extends object  field x field y  method initialize()  begin   set x = 1; set y = 2 end method m1() x method m2() y  class c2 extends c1  field x field y  method initialize()  begin   super initialize(); set  x = 2; set y = 3 end method m1() x  let o1 = new c1() o2 = new c2() in send o2 m2()
 
-;;class c1 extends object  field x field y  method initialize()  begin   set x = 1; set y = 2 end method m1() x method m2() send self m1()  class c2 extends c1  field x field y  method initialize()  begin   super initialize(); set  x = 9; set y = 10 end method m1() x  let o1 = new c1() o2 = new c2() in send o2 m2()
