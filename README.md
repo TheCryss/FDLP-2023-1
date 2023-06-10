@@ -6,6 +6,26 @@
 -----------------------------
 
 ## Respuestas
+
+### Pregunta 4
+- Crear una constante con algún valor asignado y retornar su valor
+    ```
+    const
+        @c = 1
+    in
+        @c
+    ```
+- Crear una constante con algún valor asignado y retornar un error al tratar de modificar su valor
+    ```
+    const
+        @c = 1
+    in
+        begin
+            set @c = 10;
+            @c
+        end
+    ```
+
 ### Pregunta 8
 - Paso por referencia para registros
     ```
