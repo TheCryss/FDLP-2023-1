@@ -9,7 +9,7 @@
 ### Pregunta 2
 - Lista con los 10 elementos de valores denotades
     ```
-    %Lista con los 10 elementos de valores denotades
+    //Lista con los 10 elementos de valores denotades
     var
     @entero = 1
     @flotante = 1.01
@@ -41,8 +41,8 @@
 ### Pregunta 3
 - Manejo de variables actualizables
     ```
-    %Manejo de variables actualizables
-    %Retorna 1 indicando exito.
+    //Manejo de variables actualizables
+    //Retorna 1 indicando exito.
     var
     @x = 5
     in
@@ -54,7 +54,7 @@
 ### Pregunta 4
 - Creación de constante con un valor asignado retornando su valor
     ```
-    %Creación de constante con un valor asignado retornando su valor
+    //Creación de constante con un valor asignado retornando su valor
     const
     @x = 5
     in
@@ -62,7 +62,7 @@
     ```
 - Creación de constante con un valor asignado retornando error al modificarla
     ```
-    %Creación de constante con un valor asignado retornando error al modificarla
+    //Creación de constante con un valor asignado retornando error al modificarla
     const
     @x = 5
     in
@@ -71,7 +71,26 @@
     ```
     
 ### Pregunta 5
-- Primitivas aritméticas 
+- Primitivas aritméticas con enteros
+    ```
+    //Primitivas aritméticas con enteros
+    var
+    @suma = +(5,5)
+    @resta = -(5,5)
+    @multiplicacion = *(5,5)
+    @residuo = %(12,5)
+    @division = /(10,5)
+    @add1 = add1(1)
+    @sub1 = sub1(1)
+    in
+    [@suma;@resta;@multiplicacion;@residuo;@division;@add1;@sub1]
+    ```
+- Primitivas aritméticas con hexadecimales
+    ```
+    //No fueron realizadas
+    ```
+    
+## Pregunta 6
 
 ### Pregunta 8
 - Paso por referencia para registros
