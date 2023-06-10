@@ -346,7 +346,7 @@
       new-object-exp)
 
     (expression
-      ("send" expression identifier
+      ("call" expression "." identifier
         "("  (separated-list expression ",") ")")
       method-app-exp)
 
@@ -499,9 +499,9 @@
         (let ((args (eval-rands rands env))
               (obj (new-object class-name)))
           (find-method-and-apply
-            'init class-name obj args)
+            '@init class-name obj args)
           (find-method-and-apply
-            'str class-name obj args) 
+            '@str class-name obj args) 
           obj))
       
       (method-app-exp (obj-exp method-name rands)
@@ -1109,7 +1109,7 @@
 
 (define new-object
   (lambda (class-name)
-    (if (eqv? class-name 'object)
+    (if (eqv? class-name '@object)
       '()
       (let ((c-decl (lookup-class class-name)))
         (cons
@@ -1129,7 +1129,7 @@
 
 (define find-method-and-apply
   (lambda (m-name host-name self args)
-    (if (eqv? host-name 'object)
+    (if (eqv? host-name '@object)
       (eopl:error 'find-method-and-apply
         "No method for name ~s" m-name) 
       (let ((m-decl (lookup-method-decl m-name
@@ -1252,11 +1252,52 @@
 (read-eval-print)
 
 ;;Ejemplos 
-;; class c1 extends object  field x field y  method initialize()  begin set x = 1; set y = 2 end method m1() x method m2() y  let o1 = new c1() in send o1 m1()
+;class @c1 extends @object
+;  field @x
+;  field @y
+;def @init()
+;begin
+; set @x = 1;
+; set @y = 2
+;end
+;def @str() 3
+;def @m1() @x
+;def @m2() @y
+;var
+;  @o1 = new @c1()
+;in 
+;  call @o1.@m1()
 
-
-;;;; class c1 extends object  field x field y  method initialize()  begin set x = 1; set y = 2 end method m1() x method m2() y  class c2 extends c1  field x field y  method initialize()  begin set x = 2; set y = 3 end method m1() x  let o1 = new c1() o2 = new c2() in send o2 m2()
-
-
-;;;; class c1 extends object  field x field y  method initialize()  begin   set x = 1; set y = 2 end method m1() x method m2() y  class c2 extends c1  field x field y  method initialize()  begin   super initialize(); set  x = 2; set y = 3 end method m1() x  let o1 = new c1() o2 = new c2() in send o2 m2()
-
+;Ejemplo objeto con predicado
+;class @interior_node extends @object
+;    field @left
+;    field @right
+;  def @init(@l, @r)
+;    begin
+;      set @left = @l;
+;      set @right = @r
+;    end
+;  def @str() "nodo"
+;  def @sum (@p)
+;      +(call @left.@sum(@p),call @right.@sum(@p))
+;
+;class @leaf_node extends @object
+;    field @value
+;  def @init(@v)
+;    set @value = @v
+;  def @sum (@p) 
+;    (@p @value)
+;  def @str() "hoja"
+;
+;
+;var
+;  @o1 = new @interior_node(
+;  new @interior_node(new @leaf_node(3),
+;  new @leaf_node(4)),
+;  new @leaf_node(5))
+;  @p = proc (@v)
+;     if >(@v,10)
+;       then @v
+;       else 0 
+;in
+;  call @o1.@sum(@p)
