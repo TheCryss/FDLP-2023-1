@@ -40,3 +40,38 @@
     @x
     end
     ```
+ ### Pregunta 12
+ 
+ - Declaracion de objetos y metodos
+  ```
+  class @interior_node extends @object
+    field @left
+    field @right
+  def @init(@l, @r)
+    begin
+      set @left = @l;
+      set @right = @r
+    end
+  def @str() "nodo"
+  def @sum (@p) +(call @left.@sum(@p),call @right.@sum(@p))
+
+class @leaf_node extends @object
+    field @value
+  def @init(@v) set @value = @v
+  def @sum (@p) 
+    (@p @value)
+  def @str() "hoja"
+  ```
+  
+  - Instancionado objetos y llamados a metodos
+
+```
+var
+  @o1 = new @interior_node(
+  new @interior_node(new @leaf_node(15),
+  new @leaf_node(4)),
+  new @leaf_node(5))
+  @p = proc (@v) if >(@v,10) then @v else 0 
+in
+  call @o1.@sum(@p)
+```
