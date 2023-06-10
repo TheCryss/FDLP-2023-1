@@ -236,9 +236,9 @@
       ("begin" expression (arbno ";" expression) "end")
       begin-exp)
     (expression
-      ("if" expr-bool "then" expression "else" expression)
+      ("if" expression "then" expression "else" expression)
       if-exp)
-    (expression ("while" expr-bool "do" expression "done") while-exp)
+    (expression ("while" expression "do" expression "done") while-exp)
     (expression ("for" identifier "=" expression iterator expression "do" expression "done") for-exp)
 
         ;iterator
@@ -445,7 +445,7 @@
           (apply-primitive prim args)))
       
       (if-exp (test-exp true-exp false-exp)
-        (if (eval-expr-bool test-exp env)
+        (if (eval-expression test-exp env)
           (eval-expression true-exp env)
           (eval-expression false-exp env)))
       
@@ -487,7 +487,7 @@
       (while-exp (expr-b expr) 
         (let loop ((condition expr-b)
                     (expr-e expr))
-          (if (eval-expr-bool condition env) 
+          (if (eval-expression condition env) 
             (loop condition (eval-expression expr env))
             1)))
       
