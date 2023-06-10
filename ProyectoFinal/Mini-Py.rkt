@@ -282,7 +282,7 @@
     ;Primitivas sobre tuplas
     (unary-primitive-tuple ("vacio-tupla?") is-null-primitive-tuple)
     (unary-primitive-tuple ("vacio-tupla") null-primitive-tuple)
-    (expression ("crear-tupla" "(" expr-tupla ")") expr-tupla-exp)
+    (expression ("crear-tupla" "(" expression "," expr-tupla ")") make-tupla-exp)
     (unary-primitive-tuple ("tupla?") is-tuple-primitive)
     (unary-primitive-tuple ("cabeza-tupla") car-primitive-tuple)
     (unary-primitive-tuple ("cola-tupla") cdr-primitive-tuple)
@@ -398,11 +398,14 @@
       ; Lista
       (expr-lista-exp (expr-lista) (eval-expr-lista expr-lista env))
       (make-lista-exp (exp expr-l) (eval-make-lista 
-                                      (eval-expression exp env)
-                                      (eval-expr-lista expr-l env)))
-
+                                    (eval-expression exp env)
+                                    (eval-expr-lista expr-l env)))
+      
       ; Tupla
       (expr-tupla-exp (expr-tupla) (eval-expr-tupla expr-tupla env))
+      (make-tupla-exp (exp expr-t) (eval-make-tupla
+                                    (eval-expression exp env)
+                                    (eval-expr-tupla expr-t env)))
 
       ;Registro
       (expr-registro-exp (expr-registro) (eval-expr-registro expr-registro env))
@@ -781,6 +784,13 @@
     )
   )
 )
+
+(define eval-make-tupla
+  (lambda (val t)
+    (cases tupla t
+      (tupla-vacia () (tupla-extendida (vector val)))
+      (tupla-extendida (vals) (let ((vals-l (vector->list vals)))
+                                (tupla-extendida (list->vector (cons val vals-l))))))))
 
 (define eval-expr-lista
   (lambda (expr-l env)
