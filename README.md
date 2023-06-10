@@ -91,41 +91,50 @@
     ```
     
 ## Pregunta 6
+- Procesar primitivas para booleanos
+    ```
+    //Procesar primitivas para booleanos
+    var
+    @menor = <(0,5)
+    @mayor = >(5,0)
+    @menorIgual = <=(0,5)
+    @mayorIgual = >=(5,5)
+    @igual = ==(1,0)
+    @diferente = <>(1,0)
+    @and = and(true,true)
+    @or = or(true, false)
+    @not = not(false)
+    in
+    [@menor;@mayor;@menorIgual;@mayorIgual;@igual;@diferente;@and;@or;@not]
+    ```
+    
+## Pregunta 7
+- Procesar primitivas para cadenas
+    ```
+    //Procesar primitivas para cadenas
+    var
+    @longitud = longitud("hola")
+    @concatenar = concat("ho","la")
+    in
+    [@longitud;@concatenar]
+    ```
 
 ### Pregunta 8
-- Paso por referencia para registros
+- Paso por referencia para registros y paso por valor de una variable
     ```
     var
-    @x = {hola = 1; adios = 3; jeje = 5}
-    @y = proc (@A) begin set-registro(@A, "hola", 0) end
+    @x = [1;2;3]
+    @y = 5
+    @F1 = proc (@a) begin set-list(@a, 0, 0) end
+    @F2 = proc (@a) begin set @a = 0 end
     in
     begin
-    (@y @x);
-    ref-registro(@x, "hola")
+    (@F1 @x);
+    (@F2 @y);
+    [@x;@y]
     end
     ```
-- Paso por referencia para las listas
-    ```
-    var
-    @x = [1;2]
-    @y = proc (@A) begin set-list(@A, 0, 0) end
-    in
-    begin
-    (@y @x);
-    ref-list(@x, 0)
-    end
-    ```
-- Paso por valor de una variable
-    ```
-    var
-    @x = 5
-    @y = proc (@a) begin set @a = 0 end
-    in
-    begin
-    (@y @x);
-    @x
-    end
-    ```
+    
  ### Pregunta 12
  
  - Declaracion de objetos y metodos
