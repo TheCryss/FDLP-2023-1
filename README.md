@@ -6,25 +6,72 @@
 -----------------------------
 
 ## Respuestas
-
+### Pregunta 2
+- Lista con los 10 elementos de valores denotades
+    ```
+    %Lista con los 10 elementos de valores denotades
+    var
+    @entero = 1
+    @flotante = 1.01
+    @hexadecimal = x16(14,1,0)
+    @caracter = "a"
+    @cadenacaracteres = "hola"
+    @boolean = true
+    @procedimiento = proc (@entrada) 1
+    @lista = [1;2;3]
+    @registro = {a = 1; b = 2; c = 3}
+    @tupla = tupla[1;2;3]
+    in
+    begin
+    [
+    @entero;
+    @flotante;
+    @hexadecimal;
+    @caracter;
+    @cadenacaracteres;
+    @boolean;
+    @procedimiento;
+    @lista;
+    @registro;
+    @tupla
+    ]
+    end
+    ```
+    
+### Pregunta 3
+- Manejo de variables actualizables
+    ```
+    %Manejo de variables actualizables
+    %Retorna 1 indicando exito.
+    var
+    @x = 5
+    in
+    begin
+    set @x = 10
+    end
+    ```
+    
 ### Pregunta 4
-- Crear una constante con algún valor asignado y retornar su valor
+- Creación de constante con un valor asignado retornando su valor
     ```
+    %Creación de constante con un valor asignado retornando su valor
     const
-        @c = 1
+    @x = 5
     in
-        @c
+    @x
     ```
-- Crear una constante con algún valor asignado y retornar un error al tratar de modificar su valor
+- Creación de constante con un valor asignado retornando error al modificarla
     ```
+    %Creación de constante con un valor asignado retornando error al modificarla
     const
-        @c = 1
+    @x = 5
     in
-        begin
-            set @c = 10;
-            @c
-        end
+    set @x = 10
+    end
     ```
+    
+### Pregunta 5
+- Primitivas aritméticas 
 
 ### Pregunta 8
 - Paso por referencia para registros
