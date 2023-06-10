@@ -147,7 +147,7 @@
 
 (define the-lexical-spec
   '((whitespace (whitespace) skip)                                      ;Espacios en blanco
-    (comment ("%" (arbno (not #\newline))) skip)                        ;Comentarios
+    (comment ("//" (arbno (not #\newline))) skip)                        ;Comentarios
     (identifier
       ("@" letter (arbno (or letter digit "_" "-" "?")))                ;Identificadores
       symbol)
@@ -248,8 +248,9 @@
     ;Primitivas aritméticas para enteros
     (primitive ("+")     add-prim)
     (primitive ("-")     subtract-prim)
-    
     (primitive ("*")     mult-prim)
+    (primitive ("/")     divide-prim)
+    (primitive ("%")     remainder-prim)
     (primitive ("add1")  incr-prim)
     (primitive ("sub1")  decr-prim)
 
@@ -539,6 +540,8 @@
       (add-prim  () (+ (car args) (cadr args)))
       (subtract-prim () (- (car args) (cadr args)))
       (mult-prim  () (* (car args) (cadr args)))
+      (divide-prim () (/ (car args) (cadr args)))
+      (remainder-prim () (remainder (car args) (cadr args)))
       (incr-prim  () (+ (car args) 1))
       (decr-prim  () (- (car args) 1))
       (zero-test-prim () (if (zero? (car args)) 1 0))
