@@ -268,7 +268,7 @@
     ;Primitivas sobre listas
     (unary-primitive-list ("vacio?") is-null-primitive-list)
     (unary-primitive-list ("vacio") null-primitive-list)
-    (expression ("crear-lista" "(" expr-lista ")") expr-lista-exp)
+    (expression ("crear-lista" "(" expression "," expr-lista ")") make-lista-exp)
     (unary-primitive-list ("lista?") is-lista-primitive)
     (unary-primitive-list ("cabeza") car-primitive-list)
     (unary-primitive-list ("cola") cdr-primitive-list)
@@ -396,6 +396,9 @@
       
       ; Lista
       (expr-lista-exp (expr-lista) (eval-expr-lista expr-lista env))
+      (make-lista-exp (exp expr-l) (eval-make-lista 
+                                      (eval-expression exp env)
+                                      (eval-expr-lista expr-l env)))
 
       ; Tupla
       (expr-tupla-exp (expr-tupla) (eval-expr-tupla expr-tupla env))
@@ -765,6 +768,16 @@
                                 (bignum-extendido (list->vector vals))
                                 (eopl:error 'eval-expr-bignum "No puede existir un valor mayor a 15 dentro de los valores")))
                           ))))
+
+(define eval-make-lista
+  (lambda (val l)
+    (cases lista l
+      (lista-vacia () (lista-extendida (vector val)))
+      (lista-extendida (vals) (let ((vals-l (vector->list vals)))
+                                (lista-extendida (list->vector (cons val vals-l)))))
+    )
+  )
+)
 
 (define eval-expr-lista
   (lambda (expr-l env)
