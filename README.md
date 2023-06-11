@@ -7,9 +7,9 @@
 
 ## Respuestas
 ### Pregunta 2
-- Lista con los 10 elementos de valores denotades
+- Lista con los 10 elementos de valores denotados
     ```
-    //Lista con los 10 elementos de valores denotades
+    //Lista con los 10 elementos de valores denotados
     var
     @entero = 1
     @flotante = 1.01
