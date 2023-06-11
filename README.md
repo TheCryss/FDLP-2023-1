@@ -134,9 +134,37 @@
     [@x;@y]
     end
     ```
-    
+
+### Pregunta 9
+    ```
+    rec 
+        @lista-to-tupla(@l) =
+            if vacio?(@l) then
+                tupla[]
+            else
+                crear-tupla(cabeza(@l), (@lista-to-tupla cola(@l)))
+
+        @factorial(@n) = 
+            if <(@n, 2) then
+                @n
+            else
+                *(@n, (@factorial sub1(@n)))
+
+        @factorial-list(@l) = 
+            if vacio?(@l) then
+                []
+            else
+                crear-lista((@factorial cabeza(@l)), (@factorial-list cola(@l)))
+
+        @registroFactorial(@l) =
+            {valores = (@lista-to-tupla @l); factoriales = (@factorial-list @l)}
+
+    in
+        (@registroFactorial [1; 2; 3; 4; 7; 9])
+    ```
+
  ### Pregunta 12
- 
+
  - Declaracion de objetos y metodos
   ```
   class @interior_node extends @object
