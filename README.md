@@ -163,6 +163,21 @@
         (@registroFactorial [1; 2; 3; 4; 7; 9])
     ```
 
+### Pregunta 10
+```
+rec
+    @map(@f, @l) =
+        if vacio?(@l) then
+            []
+        else
+            crear-lista((@f cabeza(@l)), (@map @f cola(@l)))
+in
+    var
+        @doble = proc(@n) *(@n, @n)
+    in
+        (@map @doble [3; 1; 2; 5])
+```
+
  ### Pregunta 12
 
  - Declaracion de objetos y metodos
