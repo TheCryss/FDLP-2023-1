@@ -178,6 +178,41 @@ in
         (@map @doble [3; 1; 2; 5])
 ```
 
+### Pregunta 11
+- Punto a, for
+```
+var
+    @l = []
+in    
+    begin
+        for @i = 1 to 5 do
+            append(@l, @i)
+        done;
+        @l
+    end
+```
+- Punto b, while
+```
+var
+    @esPar? = proc(@n)
+                if >(%(@n, 2), 0) then
+                    false
+                else
+                    true
+    @l = []
+    @i = 1
+in
+    begin
+        while <(@i, 6) do
+            begin
+                append(@l, (@esPar? @i));
+                set @i = add1(@i)
+            end
+        done;
+        @l    
+    end
+```
+
  ### Pregunta 12
 
  - Declaracion de objetos y metodos
